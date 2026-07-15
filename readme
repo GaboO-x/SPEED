@@ -1,0 +1,20 @@
+# SPEED
+
+**Security Platform for Event Enrichment & Defense**
+
+SPEED is a cybersecurity platform designed for Security Operations Centers (SOC), incident response, threat hunting, investigations, and security automation.
+
+## Features
+
+- SOC Dashboard
+- Threat Intelligence
+- Incident Response
+- MITRE ATT&CK
+- IOC Management
+- CVE Explorer
+- Security Tools
+- AI Assistant (future)
+
+## Live Demo
+
+https://gaboo-x.github.io/SPEED/
