@@ -149,7 +149,7 @@
     </style>
     <script>
         (function(){
-            const t=localStorage.getItem("theme");
+            const t=localStorage.getItem('theme','dark');
             if(!t||t==="light") document.documentElement.removeAttribute("data-theme");
             else document.documentElement.setAttribute("data-theme",t);
         })();
