@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MDR Template Creator v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+<style>
+:root {
+  --primary-color: #ffac13;
+  --secondary-color: #9aa0a6;
+  --text-color: #69FF8A;
+  --bg-color-main: #050505;
+  --card-bg: #0f1116;
+  --border-color: #afb6c2;
+  --shadow-color: rgba(0,0,0,0.55);
+  --font-family: 'Inter', sans-serif;
+  --border-radius: 8px;
+  --padding: 20px;
+  --button-green: #dd6b0e;
+  --button-green-hover: #8B0000;
+  --button-blue-dark: #0A2647;
+  --button-blue-dark-hover: #071A2E;
+  --button-red-dark: #8B0000;
+  --button-red-dark-hover: hwb(0 0% 58%);
+  --button-light-blue: #007bff;
+  --button-light-blue-hover: #0056b3;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.app-container {
+  background-color: var(--card-bg);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: var(--padding);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+h1, h2, h3 {
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.template-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.template-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.template-section label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+textarea, input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1em;
+  font-family: var(--font-family);
+  resize: vertical;
+  min-height: 40px;
+  box-sizing: border-box;
+  color: var(--text-color);
+  background-color: var(--bg-color-main);
+  margin-bottom: 10px;
+}
+
+textarea {
+  min-height: 42px;
+  height: 42px;
+  overflow-y: hidden;
+  resize: none;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.section-title-row label {
+  margin-bottom: 0;
+}
+
+/* Previously Escalated Tickets options */
+.options-group {
+  margin-bottom: 10px;
+}
+.radio-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.radio-option input[type="radio"] {
+  margin-top: 3px;
+  flex-shrink: 0;
+  width: auto;
+  min-height: unset;
+  height: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  margin-bottom: 0;
+}
+.radio-option label {
+  font-weight: normal;
+  color: var(--text-color);
+  cursor: pointer;
+  margin-bottom: 0;
+}
+#related-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: center;
+  margin-left: 4px;
+}
+#related-options input[type="checkbox"] {
+  width: auto;
+  min-height: unset;
+  height: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+#related-options label {
+  font-weight: normal;
+  color: var(--text-color);
+  cursor: pointer;
+  margin-bottom: 0;
+}
+.static-template-text {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  font-size: 0.95em;
+  color: var(--text-color);
+  white-space: pre-wrap;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* Dropdowns inside static template text (Further Investigation) — matches L2 styling */
+.static-template-text select {
+  display: inline-flex;
+  vertical-align: middle;
+  margin: 0 5px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.static-template-text select:disabled {
+  background-color: #2a3340;
+  color: #9aa0a6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.section-used-checkbox {
+  cursor: pointer;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  accent-color: #1f8018;
+}
+
+/* MDR checkbox inline */
+.mdr-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal !important;
+  color: var(--text-color) !important;
+  cursor: pointer;
+  font-size: 0.9em;
+  background-color:purple;
+  border: 1px solid #1a1b1b;
+  border-radius: 999px;
+  padding: 2px 10px 2px 6px;
+}
+.mdr-label input[type="checkbox"] {
+  margin: 0;
+  width: 14px;
+  height: 14px;
+  accent-color: #0a6ebd;
+  cursor: pointer;
+}
+#mdr-checkbox:checked ~ span,
+.mdr-label.active {
+  color: #0a6ebd !important;
+  font-weight: 600 !important;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 15px;
+  border: none;
+  border-radius: 25px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  color: white;
+  flex-shrink: 0;
+}
+
+button#copy-all-btn {
+  background-color: rgb(31,128,24);
+  margin-left: auto;
+}
+button#copy-all-btn:hover {
+  background-color: #0d4800;
+  transform: translateY(-2px);
+}
+
+button#clear-all-btn {
+  background-color: var(--button-green);
+}
+button#clear-all-btn:hover {
+  background-color: var(--button-green-hover);
+  transform: translateY(-2px);
+}
+
+button#associate-notes-btn,
+button#closing-notes-btn,
+button#pcr-notes-btn {
+  background-color: #ffc107;
+  color: #000000;
+}
+button#associate-notes-btn:hover,
+button#closing-notes-btn:hover,
+button#pcr-notes-btn:hover {
+  background-color: #e0a800;
+  transform: translateY(-2px);
+}
+
+#copy-associate-notes-btn, #edit-associate-notes-btn,
+#copy-closing-notes-btn, #edit-closing-notes-btn,
+#copy-pcr-notes-btn, #edit-pcr-notes-btn {
+  background-color: rgb(42,44,54);
+  color: #ffffff;
+}
+#copy-associate-notes-btn:hover, #edit-associate-notes-btn:hover,
+#copy-closing-notes-btn:hover, #edit-closing-notes-btn:hover,
+#copy-pcr-notes-btn:hover, #edit-pcr-notes-btn:hover {
+  background-color: #12243e;
+  transform: translateY(-2px);
+}
+
+#close-associate-notes-btn,
+#close-closing-notes-btn,
+#close-pcr-notes-btn {
+  background-color: var(--button-red-dark);
+  color: #ffffff;
+}
+#close-associate-notes-btn:hover,
+#close-closing-notes-btn:hover,
+#close-pcr-notes-btn:hover {
+  background-color: var(--button-red-dark-hover);
+  transform: translateY(-2px);
+}
+#pcr-notes-modal { z-index: 2000; }
+#associate-notes-modal { z-index: 2000; }
+#closing-notes-modal { z-index: 2000; }
+
+#copy-previous-btn {
+  background-color: purple !important;
+  color: white !important;
+  display: block !important;
+  width: max-content !important;
+  margin: 15px auto 0 auto !important;
+  text-align: center !important;
+  border-radius: 25px !important;
+  padding: 9px 15px !important;
+}
+#copy-previous-btn:hover {
+  background-color: #5a0e99 !important;
+  transform: translateY(-2px);
+}
+#copy-previous-btn.copied {
+  background-color: #22c55e !important;
+}
+
+#main-associate-notes-btn,
+#main-closing-notes-btn,
+#main-pcr-notes-btn {
+  background-color: purple !important;
+  color: white !important;
+  border-radius: 25px !important;
+  padding: 9px 15px !important;
+}
+#main-associate-notes-btn:hover,
+#main-closing-notes-btn:hover,
+#main-pcr-notes-btn:hover {
+  background-color: #5a0e99 !important;
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.6;
+}
+
+button .fas {
+  margin-right: 6px;
+  font-size: 0.9em;
+}
+
+button.copied {
+  background: #28a745 !important;
+  box-shadow: 0 4px 10px rgba(40,167,69,0.2);
+  transform: translateY(0);
+}
+
+/* Modals */
+.message-modal, .edit-modal, .edit-copy-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+}
+
+.message-modal-content, .edit-modal-content {
+  background-color: var(--card-bg);
+  margin: auto;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  width: 95%;
+  max-width: 1075px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 44px 8px rgba(0,0,0,0.2);
+}
+
+.edit-copy-modal-content {
+  background-color: var(--card-bg);
+  margin: auto;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  width: 95%;
+  max-width: 1075px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 44px 8px rgba(0,0,0,0.2);
+}
+
+.edit-modal-content textarea {
+  min-height: 200px;
+  margin-bottom: 15px;
+  overflow-y: auto;
+  resize: vertical;
+}
+
+.edit-copy-modal-content textarea {
+  height: 700px;
+  overflow-y: auto;
+  resize: vertical;
+  min-height: unset;
+  max-height: unset;
+}
+
+.edit-modal-content .modal-buttons,
+.edit-copy-modal-content .modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+
+.modal-char-counter {
+  margin-left: auto;
+  font-size: 0.8em;
+  color: var(--secondary-color);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Timer */
+#visible-timer {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(26,50,88,0.92);
+  color: #fff;
+  font-family: var(--font-family);
+  font-size: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  user-select: none;
+}
+#visible-timer i { font-size: 13px; }
+#visible-timer-text { min-width: 72px; text-align: center; }
+
+textarea,
+input[type="text"] {
+  background-color: #121822;
+  color: #69FF8A;
+  border-color: #afb6c2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .button-group { flex-direction: column; align-items: center; }
+  button { width: 100%; max-width: 190px; }
+  button#copy-all-btn { margin-left: 0; }
+  .edit-copy-modal-content { width: 95%; max-width: 95%; }
+}
+</style>
+
+<script>
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+</script>
+</head>
+<body>
+
+<div id="visible-timer" aria-label="Timer" role="status">
+  <i class="fas fa-stopwatch" aria-hidden="true"></i>
+  <span id="visible-timer-text">00:00:00</span>
+</div>
+
+<div class="app-container">
+<h1>MDR Template Creator</h1>
+<div class="template-form">
+
+<!-- ═══ 1. URL (formerly Incident Link) ═══ -->
+<div class="template-section" id="url-section">
+  <div class="section-title-row">
+    <input class="section-used-checkbox" id="section-used-url" type="checkbox" title="Include in Copy All / Copy Previous"/>
+    <label for="url-input" style="margin-bottom:0;">URL</label>
+  </div>
+  <textarea class="auto-resize-textarea" id="url-input" placeholder="Paste the incident/alert URL here"></textarea>
+</div>
+
+<!-- ═══ 2. Alert Details (formerly Incident Summary) ═══ -->
+<div class="template-section" id="alert-details-section">
+  <div class="section-title-row">
+    <input class="section-used-checkbox" id="section-used-alert-details" type="checkbox" title="Include in Copy All / Copy Previous"/>
+    <label style="margin-bottom:0;">## Alert Details</label>
+    <!-- MDR indicator -->
+    <label class="mdr-label" title="Mark as MDR">
+      <input type="checkbox" id="mdr-checkbox"/>
+      <span>MDR</span>
+    </label>
+  </div>
+  <textarea class="auto-resize-textarea" id="alert-details-input" placeholder="Paste the full alert report here. Click Summary to keep only the Alert Details block."></textarea>
+  <button id="alert-details-summary-btn" type="button" style="background-color:purple;margin-top:6px;">
+    <i class="fas fa-magic"></i> Summary
+  </button>
+</div>
+
+<!-- ═══ 3. Similar Activity (formerly Previously Escalated Tickets) ═══ -->
+<div class="template-section" id="similar-activity-section">
+  <div class="section-title-row">
+    <input class="section-used-checkbox" id="section-used-similar-activity" type="checkbox" title="Include in Copy All / Copy Previous"/>
+    <label style="margin-bottom:0;">## Similar Activity</label>
+  </div>
+  <p class="static-template-text">I ran a search of previous tickets escalated</p>
+  <div class="options-group">
+    <div class="radio-option">
+      <input checked id="no-previous-tickets" name="ticket-option" type="radio" value="no-tickets"/>
+      <label for="no-previous-tickets">and no previous tickets were found based on same Rule and </label>
+    </div>
+    <div class="radio-option">
+      <input id="related-tickets" name="ticket-option" type="radio" value="related-tickets"/>
+      <label for="related-tickets">related to the Rule and</label>
+      <div id="related-options" style="margin-top:5px;">
+        <input id="option-source" type="checkbox" value="Source IP"/> <label for="option-source">Source IP</label>
+        <input id="option-destination-ip" type="checkbox" value="Destination IP"/> <label for="option-destination-ip">Destination IP</label>
+        <input id="option-host" type="checkbox" value="Host"/> <label for="option-host">Host</label>
+        <input id="option-username" type="checkbox" value="Username"/> <label for="option-username">Username</label>
+        <input id="option-device" type="checkbox" value="Device"/> <label for="option-device">Device</label>
+        <input id="checkbox-Filename" type="checkbox" value="File"/> <label for="checkbox-Filename">Filename</label>
+        <input id="checkbox-Process" type="checkbox" value="Process"/> <label for="checkbox-Process">Process</label>
+        <input id="checkbox-hash" type="checkbox" value="Hash"/> <label for="checkbox-hash">Hash</label>
+        <input id="checkbox-URL" type="checkbox" value="URL"/> <label for="checkbox-URL">URL</label>
+      </div>
+    </div>
+  </div>
+  <textarea class="auto-resize-textarea" id="similar-activity-input" placeholder="Previous ticket and feedback"></textarea>
+</div>
+
+<!-- ═══ 4. Artifacts (formerly OSINT Summary) ═══ -->
+<div class="template-section" id="artifacts-section">
+  <div class="section-title-row">
+    <input class="section-used-checkbox" id="section-used-artifacts" type="checkbox" title="Include in Copy All / Copy Previous"/>
+    <label style="margin-bottom:0;">## Artifacts</label>
+  </div>
+  <textarea class="auto-resize-textarea" id="artifacts-input" placeholder="IPs, hashes, URLs, CVEs, MITRE ATT&CK, OSINT findings…"></textarea>
+</div>
+
+<!-- ═══ 4.5 Further Investigation ═══ -->
+<div class="template-section" id="further-investigation-section">
+  <div class="section-title-row">
+    <input class="section-used-checkbox" id="section-used-further-investigation" type="checkbox" title="Include in Copy All / Copy Previous"/>
+    <label style="margin-bottom:0;">## Further Investigation</label>
+  </div>
+  <p class="static-template-text">To extend our investigation, we ran a new search of the events containing <select id="investigation-dropdown-1"><option value="Source IP">Source IP</option><option value="Destination IP">Destination IP</option><option value="Source/Destination IP">Source/Destination IP</option><option value="HOST">HOST</option><option value="USERNAME">USERNAME</option><option value="HOSTNAME">HOSTNAME</option><option value="DEVICE">DEVICE</option><option value="FILENAME">FILENAME</option><option value="PROCESS">PROCESS</option><option value="URL">URL</option><option value="HASH">HASH</option></select><span id="investigation-dropdown-2-container"><select id="investigation-dropdown-2"><option value="as Source IP">as Source IP</option><option value="as Destination IP">as Destination IP</option><option value="as Source/Destination IP">as Source/Destination IP</option></select></span>, for the past <select id="investigation-dropdown-3"><option value="24 Hours">24 Hours</option><option value="3 days">3 days</option><option value="7 days">7 days</option></select> and found these events:</p>
+  <textarea class="auto-resize-textarea" id="further-investigation" placeholder="&gt;&gt; Paste your findings"></textarea>
+  <button id="copy-previous-btn" type="button"><i class="fas fa-copy"></i> Copy Previous</button>
+</div>
+
+<!-- ═══ 5. Analysis ═══ -->
+<div class="template-section" id="analysis-section">
+  <div class="section-title-row">
+    <input class="section-used-checkbox" id="section-used-analysis" type="checkbox" title="Include in Copy All / Copy Previous"/>
+    <label style="margin-bottom:0;">## Analysis</label>
+  </div>
+  <textarea class="auto-resize-textarea" id="analysis-input" placeholder="Technical analysis of the alert / event…"></textarea>
+</div>
+
+<!-- ═══ 6. Justification (second half of former Investigation) ═══ -->
+<div class="template-section" id="justification-section">
+  <div class="section-title-row">
+    <input class="section-used-checkbox" id="section-used-justification" type="checkbox" title="Include in Copy All / Copy Previous"/>
+    <label style="margin-bottom:0;">## Justification</label>
+  </div>
+  <textarea class="auto-resize-textarea" id="justification-input" placeholder="Reason for escalation / closure decision…"></textarea>
+</div>
+
+<!-- ═══ 7. Response Actions & Recommendations (formerly Mitigation | Prevention Steps) ═══ -->
+<div class="template-section" id="response-section">
+  <div class="section-title-row">
+    <input class="section-used-checkbox" id="section-used-response" type="checkbox" title="Include in Copy All / Copy Previous"/>
+    <label style="margin-bottom:0;">## Response Actions &amp; ## Recommendations</label>
+  </div>
+  <textarea class="auto-resize-textarea" id="response-input" placeholder="## Response Actions&#10;-&#10;-&#10;&#10;## Recommendations&#10;-&#10;-"></textarea>
+</div>
+
+<!-- ═══ Action buttons ═══ -->
+<div class="button-group">
+  <button id="clear-all-btn" type="button">
+    <i class="fas fa-eraser"></i> Clear All
+  </button>
+  <button id="main-associate-notes-btn" type="button">
+    <i class="fas fa-sticky-note"></i> Associate Notes
+  </button>
+  <button id="main-closing-notes-btn" type="button">
+    <i class="fas fa-sticky-note"></i> Closing Notes
+  </button>
+  <button id="main-pcr-notes-btn" type="button">
+    <i class="fas fa-sticky-note"></i> PCR Notes
+  </button>
+  <button id="copy-all-btn" type="button">
+    <i class="fas fa-copy"></i> Copy All
+  </button>
+</div>
+
+</div><!-- /.template-form -->
+</div><!-- /.app-container -->
+
+<!-- ══ Toast message modal ══ -->
+<div class="message-modal" id="message-modal">
+  <div class="message-modal-content">
+    <h3 id="message-modal-title"></h3>
+    <p id="message-modal-text"></p>
+  </div>
+</div>
+
+<!-- ══ Associate Notes Modal ══ -->
+<div class="edit-modal" id="associate-notes-modal">
+  <div class="edit-modal-content">
+    <h3>Associate Notes</h3>
+    <textarea id="associate-notes-textarea"></textarea>
+    <div class="modal-buttons">
+      <button id="copy-associate-notes-btn" type="button"><i class="fas fa-copy"></i> Copy</button>
+      <span class="modal-char-counter" id="associate-notes-counter">0 chars</span>
+      <button id="close-associate-notes-btn" type="button"><i class="fas fa-times"></i> Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Closing Notes Modal ══ -->
+<div class="edit-modal" id="closing-notes-modal">
+  <div class="edit-modal-content">
+    <h3>Closing Notes</h3>
+    <textarea id="closing-notes-textarea"></textarea>
+    <div class="modal-buttons">
+      <button id="copy-closing-notes-btn" type="button"><i class="fas fa-copy"></i> Copy</button>
+      <span class="modal-char-counter" id="closing-notes-counter">0 chars</span>
+      <button id="close-closing-notes-btn" type="button"><i class="fas fa-times"></i> Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PCR Notes Modal ══ -->
+<div class="edit-modal" id="pcr-notes-modal">
+  <div class="edit-modal-content">
+    <h3>PCR Notes</h3>
+    <textarea id="pcr-notes-textarea"></textarea>
+    <div class="modal-buttons">
+      <button id="copy-pcr-notes-btn" type="button"><i class="fas fa-copy"></i> Copy</button>
+      <span class="modal-char-counter" id="pcr-notes-counter">0 chars</span>
+      <button id="close-pcr-notes-btn" type="button"><i class="fas fa-times"></i> Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Double Check Modal ══ -->
+<div class="edit-copy-modal" id="edit-copy-modal">
+  <div class="edit-copy-modal-content">
+    <h3><i class="fas fa-check-double"></i> Double Check</h3>
+    <textarea id="edit-copy-textarea"></textarea>
+    <div class="modal-buttons">
+      <button id="associate-notes-btn" type="button"><i class="fas fa-sticky-note"></i> Associate Notes</button>
+      <button id="closing-notes-btn" type="button"><i class="fas fa-sticky-note"></i> Closing Notes</button>
+      <button id="pcr-notes-btn" type="button"><i class="fas fa-sticky-note"></i> PCR Notes</button>
+      <button id="copy-from-modal-btn" style="background-color:rgb(11,50,19);color:white;" type="button">
+        <i class="fas fa-copy"></i> Copy All
+      </button>
+      <span class="modal-char-counter" id="double-check-counter">0 chars</span>
+      <button id="close-copy-modal-btn" style="background-color:var(--button-red-dark);color:white;" type="button">
+        <i class="fas fa-times-circle"></i> Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Warning / Clear All Modal ══ -->
+<div class="message-modal" id="warning-modal" style="display:none;align-items:center;justify-content:center;">
+  <div class="message-modal-content" style="text-align:center;max-width:400px;padding:25px;">
+    <h3>⚠ Warning!</h3>
+    <p style="font-size:1.1em;margin-bottom:20px;">Are you sure you want to CLEAR ALL content?</p>
+    <p style="font-size:1.1em;margin-bottom:20px;">This action cannot be undone.</p>
+    <div style="display:flex;justify-content:center;gap:15px;margin-top:20px;">
+      <button id="confirm-clear-btn" style="background-color:var(--button-red-dark);color:white;">
+        <i class="fas fa-check"></i> Confirm
+      </button>
+      <button id="cancel-clear-btn" style="background-color:var(--secondary-color);color:white;">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── AUTO-RESIZE ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('textarea').forEach(function (ta) {
+    if (ta.id === 'edit-copy-textarea') return;
+    ta.style.overflowY = 'hidden';
+    ta.style.resize = 'none';
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+    ta.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
+    });
+  });
+});
+
+function autoResizeTextarea(ta) {
+  if (ta && ta.id !== 'edit-copy-textarea') {
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+  }
+}
+
+// ── SHOW MESSAGE (toast) ─────────────────────────────────────────────────────
+const messageModal      = document.getElementById('message-modal');
+const messageModalTitle = document.getElementById('message-modal-title');
+const messageModalText  = document.getElementById('message-modal-text');
+
+function showMessage(title, text) {
+  messageModalTitle.textContent = title;
+  messageModalText.textContent  = text;
+  messageModal.style.display    = 'flex';
+  setTimeout(() => { messageModal.style.display = 'none'; }, 2000);
+}
+
+// ── SECTION "USED" CHECKBOX WIRING ──────────────────────────────────────────
+function wireSectionUsedCheckbox(sectionId, checkboxId) {
+  const container = document.getElementById(sectionId);
+  const checkbox  = document.getElementById(checkboxId);
+  if (!container || !checkbox) return;
+  container.addEventListener('input', (e) => {
+    // Only auto-check — never auto-uncheck. Skip if the event came from the checkbox itself.
+    if (e.target === checkbox) return;
+    if (!checkbox.checked) checkbox.checked = true;
+  });
+}
+
+wireSectionUsedCheckbox('url-section',              'section-used-url');
+wireSectionUsedCheckbox('alert-details-section',    'section-used-alert-details');
+wireSectionUsedCheckbox('similar-activity-section', 'section-used-similar-activity');
+wireSectionUsedCheckbox('analysis-section',         'section-used-analysis');
+wireSectionUsedCheckbox('artifacts-section',        'section-used-artifacts');
+wireSectionUsedCheckbox('further-investigation-section', 'section-used-further-investigation');
+wireSectionUsedCheckbox('justification-section',    'section-used-justification');
+wireSectionUsedCheckbox('response-section',         'section-used-response');
+
+// ============================================================
+// Puente de navegación cross-app (postMessage) recibido desde
+// Launcher_Templates.html. Inserta el texto de OSINT en ## Artifacts,
+// respetando cualquier contenido que el usuario haya escrito a mano.
+// ============================================================
+window.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data || data.type !== 'osint-data' || !data.value) return;
+
+  const ta = document.getElementById('artifacts-input');
+  if (!ta) return;
+
+  const existing = (ta.value || '').trim();
+  ta.value = existing ? existing + '\n\n' + data.value : data.value;
+
+  // Dispara 'input' para que se apliquen el auto-resize y el auto-check
+  // de "section-used-artifacts" (misma convención que el resto del template).
+  ta.dispatchEvent(new Event('input', { bubbles: true }));
+});
+
+// ── SIMILAR ACTIVITY — radio / checkbox auto-switch ──────────────────────────
+const noPreviousTicketsRadio = document.getElementById('no-previous-tickets');
+const relatedTicketsRadio    = document.getElementById('related-tickets');
+const relatedOptionsDiv      = document.getElementById('related-options');
+const relatedCheckboxes      = relatedOptionsDiv.querySelectorAll('input[type="checkbox"]');
+const similarActivityTa      = document.getElementById('similar-activity-input');
+
+function setRelatedTicketsModeIfNeeded() {
+  const hasText   = (similarActivityTa.value || '').trim().length > 0;
+  const anyChecked = Array.from(relatedCheckboxes).some(cb => cb.checked);
+  if (hasText || anyChecked) relatedTicketsRadio.checked = true;
+}
+
+similarActivityTa.addEventListener('input', setRelatedTicketsModeIfNeeded);
+relatedCheckboxes.forEach(cb => cb.addEventListener('change', setRelatedTicketsModeIfNeeded));
+
+window.addEventListener('DOMContentLoaded', () => {
+  noPreviousTicketsRadio.checked = true;
+});
+
+function isSectionUsed(checkboxId) {
+  const cb = document.getElementById(checkboxId);
+  return cb ? cb.checked : false;
+}
+
+// ── FURTHER INVESTIGATION — dropdown 2 enable/disable logic ─────────────────
+const investigationDropdown1 = document.getElementById('investigation-dropdown-1');
+const investigationDropdown2 = document.getElementById('investigation-dropdown-2');
+const investigationDropdown3 = document.getElementById('investigation-dropdown-3');
+
+function toggleInvestigationDropdown2() {
+  const selectedValue1 = investigationDropdown1.value;
+  const disableList = ['URL', 'HASH', 'USERNAME', 'HOSTNAME', 'FILENAME', 'HOST', 'DEVICE', 'PROCESS'];
+  investigationDropdown2.disabled = disableList.includes(selectedValue1);
+}
+
+investigationDropdown1.addEventListener('change', toggleInvestigationDropdown2);
+window.addEventListener('DOMContentLoaded', toggleInvestigationDropdown2);
+
+// ── ALERT DETAILS SUMMARY BUTTON ─────────────────────────────────────────────
+// Keeps everything BEFORE "## Similar Activity:" and discards the rest.
+document.getElementById('alert-details-summary-btn').addEventListener('click', () => {
+  const ta = document.getElementById('alert-details-input');
+  const raw = ta.value;
+  if (!raw.trim()) {
+    showMessage('Empty', 'Nothing to trim. Paste the alert report first.');
+    return;
+  }
+  const cutMarker = '## Similar Activity:';
+  const idx = raw.indexOf(cutMarker);
+  if (idx === -1) {
+    showMessage('Marker not found', '"## Similar Activity:" was not found in the text. Nothing was changed.');
+    return;
+  }
+  ta.value = raw.slice(0, idx).trimEnd();
+  autoResizeTextarea(ta);
+  // mark section as used
+  document.getElementById('section-used-alert-details').checked = true;
+  showMessage('Done', 'Content trimmed up to ## Similar Activity:');
+});
+
+// ── CHAR COUNTER ─────────────────────────────────────────────────────────────
+function updateCharCounter(textarea, counterEl) {
+  if (!textarea || !counterEl) return;
+  counterEl.textContent = textarea.value.length + ' chars';
+  textarea.addEventListener('input', () => {
+    counterEl.textContent = textarea.value.length + ' chars';
+  });
+}
+
+// ── BUILD OUTPUT ─────────────────────────────────────────────────────────────
+/**
+ * Assembles the output in the exact format requested:
+ *
+ * ## Alert Details
+ * <alert-details content>
+ *
+ * ## Similar Activity:
+ * <similar-activity content>
+ *
+ * ## Analysis
+ * <analysis content>
+ *
+ * ## Artifacts
+ * <artifacts content>
+ *
+ * ## Justification
+ * <justification content>
+ *
+ * ## Response Actions
+ * <response-actions part>
+ *
+ * ## Recommendations
+ * <recommendations part>
+ *
+ * Incident-IT
+ *
+ * URL : <url>
+ */
+function buildOutput(includeJustification, includeMitigation) {
+  const url            = (document.getElementById('url-input')?.value || '').trim();
+  const alertDetails   = (document.getElementById('alert-details-input')?.value || '').trim();
+  const analysis       = (document.getElementById('analysis-input')?.value || '').trim();
+  const artifacts      = (document.getElementById('artifacts-input')?.value || '').trim();
+  const justification  = (document.getElementById('justification-input')?.value || '').trim();
+  const responseRaw    = (document.getElementById('response-input')?.value || '').trim();
+
+  // Split Response Actions & Recommendations from the single textarea.
+  // If the textarea contains "## Recommendations", split there.
+  // Otherwise treat the whole block as Response Actions.
+  let responseActions = '';
+  let recommendations = '';
+  const recIdx = responseRaw.indexOf('## Recommendations');
+  if (recIdx !== -1) {
+    responseActions = responseRaw.slice(0, recIdx).replace(/^##\s*Response Actions\s*/i, '').trim();
+    recommendations = responseRaw.slice(recIdx).replace(/^##\s*Recommendations\s*/i, '').trim();
+  } else {
+    responseActions = responseRaw.replace(/^##\s*Response Actions\s*/i, '').trim();
+  }
+
+  const lines = [];
+
+  // ── Alert Details ──
+  if (isSectionUsed('section-used-alert-details') && alertDetails) {
+    lines.push('## Alert Details');
+    lines.push(alertDetails);
+    lines.push('');
+  }
+
+  // ── Similar Activity ──
+  if (isSectionUsed('section-used-similar-activity')) {
+    // Construir texto igual que Previously Escalated Tickets del Template
+    let baseText = 'PREVIOUS TICKETS\nI ran a search of previous tickets escalated ';
+    if (noPreviousTicketsRadio && noPreviousTicketsRadio.checked) {
+      baseText += 'and no previous tickets were found based on same Rule and ';
+    } else if (relatedTicketsRadio && relatedTicketsRadio.checked) {
+      baseText += 'related to the Rule and ';
+    }
+    const selectedOptions = [];
+    if (relatedCheckboxes) {
+      relatedCheckboxes.forEach(cb => { if (cb.checked) selectedOptions.push(cb.value); });
+    }
+    const optionsString   = selectedOptions.length > 0 ? selectedOptions.join(' / ') : '';
+    const userInputValue  = (document.getElementById('similar-activity-input')?.value || '').trim();
+
+    let similarText = baseText;
+    if (optionsString !== '') similarText += optionsString;
+    if (userInputValue !== '') {
+      similarText += (optionsString !== '' ? '\n\n' : '') + userInputValue;
+    }
+
+    lines.push('## Similar Activity:');
+    lines.push(similarText);
+    lines.push('');
+  }
+
+  // ── Analysis ──
+  if (isSectionUsed('section-used-analysis') && analysis) {
+    lines.push('## Analysis');
+    lines.push(analysis);
+    lines.push('');
+  }
+
+  // ── Artifacts ──
+  if (isSectionUsed('section-used-artifacts') && artifacts) {
+    lines.push('## Artifacts');
+    lines.push(artifacts);
+    lines.push('');
+  }
+
+  // ── Further Investigation ──
+  if (isSectionUsed('section-used-further-investigation')) {
+    const dropdown1Value  = investigationDropdown1.value;
+    const dropdown2Value  = investigationDropdown2.value;
+    const dropdown3Value  = investigationDropdown3.value;
+    const dropdown2Text   = investigationDropdown2.disabled ? '' : ' "' + dropdown2Value + '"';
+    const findingsContent = (document.getElementById('further-investigation')?.value || '').trim();
+    const furtherInvestigationText = 'To extend our investigation, we ran a new search of the events containing "' + dropdown1Value + '"' + dropdown2Text + ', for the past "' + dropdown3Value + '" and found these events:\n' + findingsContent;
+
+    lines.push('## Further Investigation');
+    lines.push(furtherInvestigationText);
+    lines.push('');
+  }
+
+  // ── Justification (Copy All only) ──
+  if (includeJustification && isSectionUsed('section-used-justification') && justification) {
+    lines.push('## Justification');
+    lines.push(justification);
+    lines.push('');
+  }
+
+  // ── Response Actions & Recommendations (Copy All only) ──
+  if (includeMitigation && isSectionUsed('section-used-response')) {
+    if (responseActions) {
+      lines.push('## Response Actions');
+      lines.push(responseActions);
+      lines.push('');
+    }
+    if (recommendations) {
+      lines.push('## Recommendations');
+      lines.push(recommendations);
+      lines.push('');
+    }
+  }
+
+  // ── Footer ──
+  lines.push('Incident-IT');
+  lines.push('');
+  if (isSectionUsed('section-used-url') && url) {
+    lines.push('URL : ' + url);
+  } else {
+    lines.push('URL :');
+  }
+
+  // Remove trailing blank lines before the footer pair
+  let output = lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return output;
+}
+
+// ── COPY ALL → opens Double Check modal ─────────────────────────────────────
+const copyAllBtn     = document.getElementById('copy-all-btn');
+const editCopyModal  = document.getElementById('edit-copy-modal');
+const editCopyTa     = document.getElementById('edit-copy-textarea');
+const doubleCheckCounter = document.getElementById('double-check-counter');
+
+copyAllBtn.addEventListener('click', () => {
+  const output = buildOutput(true, true);
+  if (!output || output.trim() === '') {
+    showMessage('Empty', 'No content to copy. Fill in at least one section and check its checkbox.');
+    return;
+  }
+  editCopyTa.value = output;
+  updateCharCounter(editCopyTa, doubleCheckCounter);
+  editCopyModal.style.display = 'flex';
+});
+
+// ── COPY ALL from modal ──────────────────────────────────────────────────────
+document.getElementById('copy-from-modal-btn').addEventListener('click', () => {
+  const text = editCopyTa.value || '';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showMessage('Copied', 'Content copied to clipboard.'))
+      .catch(() => { fallbackCopy(text); });
+  } else {
+    fallbackCopy(text);
+  }
+});
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showMessage('Copied', 'Content copied to clipboard.'); }
+  catch(e) { showMessage('Error', 'Could not copy.'); }
+  document.body.removeChild(ta);
+}
+
+document.getElementById('close-copy-modal-btn').addEventListener('click', () => {
+  editCopyModal.style.display = 'none';
+});
+
+// ── COPY PREVIOUS ────────────────────────────────────────────────────────────
+// Excludes Justification and Response Actions & Recommendations from the output.
+function copyPreviousAssembled() {
+  const output = buildOutput(false, false);
+  if (!output || output.trim() === '') {
+    showMessage('Empty', 'No content to copy.');
+    return;
+  }
+  const ta = document.createElement('textarea');
+  ta.value = output;
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    const btn = document.getElementById('copy-previous-btn');
+    btn.classList.add('copied');
+    setTimeout(() => btn.classList.remove('copied'), 1000);
+  } catch(e) {
+    showMessage('Error', 'Could not copy to clipboard.');
+  }
+  document.body.removeChild(ta);
+}
+
+document.getElementById('copy-previous-btn').addEventListener('click', copyPreviousAssembled);
+
+// ── CLEAR ALL ────────────────────────────────────────────────────────────────
+const warningModal   = document.getElementById('warning-modal');
+const confirmClearBtn= document.getElementById('confirm-clear-btn');
+const cancelClearBtn = document.getElementById('cancel-clear-btn');
+
+document.getElementById('clear-all-btn').addEventListener('click', () => {
+  warningModal.style.display = 'flex';
+});
+
+cancelClearBtn.addEventListener('click', () => {
+  warningModal.style.display = 'none';
+});
+
+confirmClearBtn.addEventListener('click', function(e) {
+  if (e) { e.preventDefault(); e.stopImmediatePropagation(); }
+  warningModal.style.display = 'none';
+  showMessage('Cleared', 'Fields cleared');
+  setTimeout(() => { window.location.reload(); }, 2100);
+}, true);
+
+// ── ASSOCIATE NOTES MODAL ────────────────────────────────────────────────────
+const associateNotesBtn     = document.getElementById('associate-notes-btn');
+const associateNotesModal   = document.getElementById('associate-notes-modal');
+const associateNotesTa      = document.getElementById('associate-notes-textarea');
+const copyAssociateNotesBtn = document.getElementById('copy-associate-notes-btn');
+const closeAssociateNotesBn = document.getElementById('close-associate-notes-btn');
+const associateCounter      = document.getElementById('associate-notes-counter');
+
+const ASSOCIATE_NOTES_KEY = 'associate_notes_v3';
+const associateNotesDefault = `Dear customer we assign this alert to the existing ticket XXX due to similar activity has been identified in the mentioned alert
+Current information:
+
+Offense ID: XXXX
+Start Date: XXXX
+Last Time Detected: XXXX
+Source IP(s): XXXX
+Destination IP(s): XXXX
+User: (If available)
+Association Reason:
+*Same rule
+*Same event
+*Same : XXXX
+*Same : XXXX
+*Same : XXXX
+*Same : XXXX
+
+Hence associating with this security incident.
+Thanks & regards,
+IBM SOC
+
+*******
+
+We assign this alert to the existing ticket XXXX due to similar
+Same rule/ event / XXX`;
+
+if (associateNotesBtn) {
+  associateNotesBtn.addEventListener('click', () => {
+    associateNotesTa.value = associateNotesDefault;
+    updateCharCounter(associateNotesTa, associateCounter);
+    associateNotesModal.style.display = 'flex';
+    autoResizeTextarea(associateNotesTa);
+  });
+}
+if (copyAssociateNotesBtn) {
+  copyAssociateNotesBtn.addEventListener('click', () => {
+    const text = associateNotesTa.value || '';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text)
+        .then(() => showMessage('Copied', 'Associate Notes copied.'))
+        .catch(() => { fallbackCopy(text); });
+    } else { fallbackCopy(text); }
+  });
+}
+if (closeAssociateNotesBn) {
+  closeAssociateNotesBn.addEventListener('click', () => {
+    associateNotesModal.style.display = 'none';
+  });
+}
+
+// ── CLOSING NOTES MODAL ──────────────────────────────────────────────────────
+const closingNotesBtn   = document.getElementById('closing-notes-btn');
+const closingNotesModal = document.getElementById('closing-notes-modal');
+const closingNotesTa    = document.getElementById('closing-notes-textarea');
+const copyClosingNotesB = document.getElementById('copy-closing-notes-btn');
+const closeClosingNoteB = document.getElementById('close-closing-notes-btn');
+const closingCounter    = document.getElementById('closing-notes-counter');
+
+const CLOSING_NOTES_KEY = 'closing_notes_v3';
+const closingNotesDefault = `- Incident closed in Azure with the following note:
+
+- According to the previous feedback we are closing this event as LP
+
+- Previously Reported: The activity related to this alert matches information that was previously reported.
+No additional evidence of malicious behavior has been observed since the initial report, and no feedback or further requests were received from the customer.
+Given the absence of new findings or changes in activity, no further investigation or action is required at this time.
+
+- No IoC / No Threat Identified: After reviewing the events of this offense we assume that this does not represent a risk, due to the traffic was blocked / no Indicators of Compromise (IoCs) or malicious activity were identified. 
+After extending search based on the traffic  we haven't noticed any evidence of threat, malware or reverse communication in the last 24h. 
+Based on the findings, this activity does not represent a security risk and no further action is required.
+
+- Harmless Activity: Analysis of the observed activity indicates that it corresponds to normal and expected behavior within the environment.
+No indicators of threat, malware, or suspicious activity were identified during the review.
+This activity is considered benign and does not require further investigation or escalation.
+
+- Checked last 24 hrs activity of source IP, we haven't noticed any evidence of threat, malware or reverse communication. The users logged into the internal host is found to be XXX, which doesn't found to be suspicious, hence closing as low priority 
+
+- This activity is being worked on XXX its not possible to associate this alert to the main, we are closing this event in order to avoid duplicated case
+
+- During a scheduled scan the sensor detected and quarantined the file/process. Correct remediation actions were taken by the EDR.`;
+
+if (closingNotesBtn) {
+  closingNotesBtn.addEventListener('click', () => {
+    closingNotesTa.value = closingNotesDefault;
+    updateCharCounter(closingNotesTa, closingCounter);
+    closingNotesModal.style.display = 'flex';
+    autoResizeTextarea(closingNotesTa);
+  });
+}
+if (copyClosingNotesB) {
+  copyClosingNotesB.addEventListener('click', () => {
+    const text = closingNotesTa.value || '';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text)
+        .then(() => showMessage('Copied', 'Closing Notes copied.'))
+        .catch(() => { fallbackCopy(text); });
+    } else { fallbackCopy(text); }
+  });
+}
+if (closeClosingNoteB) {
+  closeClosingNoteB.addEventListener('click', () => {
+    closingNotesModal.style.display = 'none';
+  });
+}
+
+// ── PCR NOTES MODAL ──────────────────────────────────────────────────────────
+const pcrNotesBtn   = document.getElementById('pcr-notes-btn');
+const pcrNotesModal = document.getElementById('pcr-notes-modal');
+const pcrNotesTa    = document.getElementById('pcr-notes-textarea');
+const copyPcrNotesB = document.getElementById('copy-pcr-notes-btn');
+const closePcrNoteB = document.getElementById('close-pcr-notes-btn');
+const pcrCounter    = document.getElementById('pcr-notes-counter');
+
+const PCR_NOTES_KEY = 'pcr_notes_template_v1';
+const pcrNotesDefault = `Per Incident: INCXXX
+Requested By: Gabriel Mora
+Type Of Request: Noise Reduction
+
+Justification for PCR: 
+Based on Offense ID: SIRXXX / INCXXX
+Rule(s) that Triggered Offense: RULE___NAME
+Activity Description: RULE___DESCRIPTION
+# of alerts in the last 60 days: 
+    - # Escalated: XX
+    - # Associated: XX
+    - # Closed: XX
+
+Client Response to Past Incidents: No Response
+Client Feedback Summary:  N/A
+
+Recommended Action for Client (If Not Tuning):
+    - Action Suggestion: XXX
+    - Notes to Client: This rule is best as autoescalated/autoclose`;
+
+if (pcrNotesBtn) {
+  pcrNotesBtn.addEventListener('click', () => {
+    pcrNotesTa.value = pcrNotesDefault;
+    updateCharCounter(pcrNotesTa, pcrCounter);
+    pcrNotesModal.style.display = 'flex';
+    autoResizeTextarea(pcrNotesTa);
+  });
+}
+if (copyPcrNotesB) {
+  copyPcrNotesB.addEventListener('click', () => {
+    const text = pcrNotesTa.value || '';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text)
+        .then(() => showMessage('Copied', 'PCR Notes copied.'))
+        .catch(() => { fallbackCopy(text); });
+    } else { fallbackCopy(text); }
+  });
+}
+if (closePcrNoteB) {
+  closePcrNoteB.addEventListener('click', () => {
+    pcrNotesModal.style.display = 'none';
+  });
+}
+
+// ── MAIN SCREEN SHORTCUTS (reuse existing Double Check button logic) ─────────
+const mainAssociateNotesBtn = document.getElementById('main-associate-notes-btn');
+const mainClosingNotesBtn   = document.getElementById('main-closing-notes-btn');
+const mainPcrNotesBtn       = document.getElementById('main-pcr-notes-btn');
+
+if (mainAssociateNotesBtn && associateNotesBtn) {
+  mainAssociateNotesBtn.addEventListener('click', () => associateNotesBtn.click());
+}
+if (mainClosingNotesBtn && closingNotesBtn) {
+  mainClosingNotesBtn.addEventListener('click', () => closingNotesBtn.click());
+}
+if (mainPcrNotesBtn && pcrNotesBtn) {
+  mainPcrNotesBtn.addEventListener('click', () => pcrNotesBtn.click());
+}
+</script>
+
+<!-- ── TIMER ──────────────────────────────────────────────────────────────── -->
+<script id="visible-timer-script">
+(function(){
+  function pad(n){ return (n<10?'0':'')+n; }
+  function fmt(ms){
+    var t=Math.floor(ms/1000), h=Math.floor(t/3600), m=Math.floor((t%3600)/60), s=t%60;
+    return pad(h)+':'+pad(m)+':'+pad(s);
+  }
+  var NORMAL=20*60, WARN=35*60;
+  function applyState(sec){
+    var box=document.getElementById('visible-timer');
+    if(!box) return;
+    if(sec<=NORMAL){ box.style.backgroundColor='green'; box.style.color='white'; }
+    else if(sec<=WARN){ box.style.backgroundColor='yellow'; box.style.color='black'; }
+    else{ box.style.backgroundColor='red'; box.style.color='white'; }
+  }
+  function start(){
+    var el=document.getElementById('visible-timer-text');
+    if(!el) return;
+    var t0=Date.now();
+    function tick(){
+      var ms=Date.now()-t0, sec=Math.floor(ms/1000);
+      applyState(sec);
+      el.textContent=fmt(ms);
+    }
+    tick();
+    setInterval(tick,1000);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start);
+  else start();
+})();
+</script>
+
+<!-- ── SCROLL TO TOP ─────────────────────────────────────────────────────── -->
+<script>
+(function(){
+  function top(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; document.body.scrollTop=0; }
+  document.addEventListener('DOMContentLoaded',top);
+  window.addEventListener('load',top);
+  window.addEventListener('pageshow',top);
+})();
+</script>
+
+<!-- ── THEME ──────────────────────────────────────────────────────── -->
+<script>
+document.documentElement.setAttribute('data-theme', 'dark');
+</script>
+
+</body>
+</html>
