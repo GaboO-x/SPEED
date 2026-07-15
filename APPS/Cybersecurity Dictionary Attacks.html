@@ -1292,6 +1292,45 @@ const cyberattacksData = [
         }
     }
 
+    // ============================================================
+    // Fix: cuando esta página corre embebida en el iframe de SPEED.html,
+    // ese iframe se auto-ajusta a la altura total del contenido (sin scroll
+    // propio) y el scroll real ocurre en el ".main-content" de la página
+    // padre. Como el modal usa "position:fixed", se posiciona relativo al
+    // viewport del iframe (que es TODO el contenido), no a lo que el
+    // usuario ve en pantalla, y termina apareciendo fuera de vista.
+    // Esta función recalcula, en cada apertura, qué porción del iframe es
+    // realmente visible en la página padre y reposiciona el modal ahí.
+    // Si la página corre standalone (sin iframe) o el padre no es
+    // accesible, no hace nada y el modal se comporta como "fixed" normal.
+    // ============================================================
+    function alignModalToVisibleArea() {
+        try {
+            if (window.parent === window || !window.frameElement) return; // standalone: no tocar nada
+
+            const parentScroller = window.parent.document.querySelector('.main-content');
+            if (!parentScroller) return; // no es el layout de SPEED: no tocar nada
+
+            const iframeRect = window.frameElement.getBoundingClientRect();
+            // getBoundingClientRect() de un elemento dentro de un contenedor con scroll
+            // ya viene relativo al viewport visible del padre, así que si el iframe
+            // arranca arriba del área visible, iframeRect.top será negativo.
+            const visibleTop = Math.max(0, -iframeRect.top);
+            const visibleHeight = parentScroller.clientHeight;
+
+            // Solo acá, con acceso confirmado al padre, cambiamos de "fixed" a
+            // "absolute" alineado a lo que el usuario realmente ve.
+            attackModal.classList.remove('fixed');
+            attackModal.style.position = 'absolute';
+            attackModal.style.top = visibleTop + 'px';
+            attackModal.style.height = visibleHeight + 'px';
+        } catch (e) {
+            // Cross-origin u otro fallo de acceso al padre: dejar el modal
+            // intacto con su "fixed" original (no rompe nada).
+            console.warn('[alignModalToVisibleArea] No se pudo alinear con la página padre:', e);
+        }
+    }
+
     function openModal(attack, categoryName) {
         currentAttack = { ...attack, categoryName };
         modalIcon.className = attack.icon;
@@ -1330,12 +1369,38 @@ const cyberattacksData = [
 
         copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy for report';
         copyBtn.classList.remove('copied');
+        alignModalToVisibleArea();
         attackModal.classList.remove('hidden');
         attackModal.scrollTop = 0;
+        watchParentScrollWhileOpen();
+    }
+
+    // Reengancha el realineado del modal si el usuario scrollea la página
+    // padre (SPEED.html) mientras el modal sigue abierto. Si no está
+    // embebido, alignModalToVisibleArea() no hace nada, así que este
+    // listener tampoco tiene efecto alguno en modo standalone.
+    let parentScrollHandler = null;
+    function watchParentScrollWhileOpen() {
+        try {
+            if (window.parent === window || !window.frameElement) return;
+            const parentScroller = window.parent.document.querySelector('.main-content');
+            if (!parentScroller) return;
+            stopWatchingParentScroll();
+            parentScrollHandler = () => alignModalToVisibleArea();
+            parentScroller.addEventListener('scroll', parentScrollHandler);
+        } catch (e) { /* cross-origin: no hacer nada */ }
+    }
+    function stopWatchingParentScroll() {
+        try {
+            if (!parentScrollHandler) return;
+            const parentScroller = window.parent.document.querySelector('.main-content');
+            if (parentScroller) parentScroller.removeEventListener('scroll', parentScrollHandler);
+            parentScrollHandler = null;
+        } catch (e) { /* cross-origin: no hacer nada */ }
     }
 
     searchInput.addEventListener('input', e => renderCards(e.target.value));
-    closeModalBtn.addEventListener('click', () => attackModal.classList.add('hidden'));
+    closeModalBtn.addEventListener('click', () => { attackModal.classList.add('hidden'); stopWatchingParentScroll(); });
 
     modalFavBtn.addEventListener('click', () => {
         if (!currentAttack) return;
@@ -1379,7 +1444,7 @@ const cyberattacksData = [
             }, '*');
         }
     });
-    window.addEventListener('click', e => { if (e.target === attackModal) attackModal.classList.add('hidden'); });
+    window.addEventListener('click', e => { if (e.target === attackModal) { attackModal.classList.add('hidden'); stopWatchingParentScroll(); } });
 
     copyBtn.addEventListener('click', () => {
         if (!currentAttack) return;
