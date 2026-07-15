@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SOC Launcher</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; flex-direction: column; height: 100vh; background: #111; }
+
+  #tab-bar {
+    display: flex;
+    gap: 4px;
+    padding: 3px 6px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #2a2a2a;
+    height: 26px;
+    align-items: center;
+  }
+
+  .tab {
+    font-family: monospace;
+    font-size: 20px;
+    padding: 2px 10px;
+    border: 1px solid #333;
+    border-radius: 3px;
+    cursor: pointer;
+    color: #ec640a;
+    background: transparent;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+
+  .tab:hover { color: #aaaaaa; border-color: #555; }
+
+  .tab.active {
+    color: #7fe20e;
+    border-color: #555;
+    background: #2a2a2a;
+  }
+
+  iframe {
+    flex: 1;
+    border: none;
+    display: none;
+    width: 100%;
+  }
+
+  iframe.active { display: block; }
+</style>
+</head>
+<body>
+
+<div id="tab-bar">
+  <button class="tab" active onclick="switchTab('mdr')">MDR</button>
+  <button class="tab" onclick="switchTab('soc')">SOC</button>
+</div>
+
+<iframe id="frame-mdr" class="active" src="Template_MDR.html"></iframe>
+<iframe id="frame-soc" src="Template_L2.html"></iframe>
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
+    document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+    document.getElementById(`frame-${name}`).classList.add('active');
+  }
+
+  // ============================================================
+  // Puente de navegación cross-app (postMessage) recibido desde SPEED.html
+  // SPEED ya cambió a esta app (Templates) y reenvía el payload original
+  // de OSINT. Acá lo re-reenviamos SOLO al template que esté activo en
+  // este momento (MDR o L2/SOC); no cambiamos de tab.
+  // ============================================================
+  window.addEventListener('message', (event) => {
+    const data = event.data;
+    if (!data || data.type !== 'osint-data' || !data.value) return;
+
+    const activeFrame = document.querySelector('iframe.active');
+    if (activeFrame && activeFrame.contentWindow) {
+      activeFrame.contentWindow.postMessage(data, '*');
+    } else {
+      console.warn('[Launcher_Templates] No hay iframe activo para reenviar osint-data.');
+    }
+  });
+</script>
+</body>
+</html>
