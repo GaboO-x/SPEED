@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPEED</title>
     <link rel="icon" type="image/png" href="IMAGES/Speed_Logo3.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1A3258">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SPEED">
     <!-- Importación de la fuente Inter para una apariencia limpia y moderna -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome para iconos -->
@@ -1524,6 +1530,19 @@
     <script>
     /* Tema fijo: Noche (sin selector, controlado por app madre) */
     document.documentElement.setAttribute('data-theme', 'dark');
+    </script>
+
+    <script>
+    /* Registro del Service Worker (PWA instalable + soporte offline).
+       Solo corre bajo http(s) — bajo file:// no hay Service Worker API,
+       así que se ignora silenciosamente y la app sigue funcionando normal. */
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then((reg) => console.log('[SW] Registrado:', reg.scope))
+                .catch((err) => console.warn('[SW] Error al registrar:', err));
+        });
+    }
     </script>
 
 </body>
