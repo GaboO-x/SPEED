@@ -27,6 +27,10 @@ const PRECACHE_URLS = [
 ];
 
 // --- Instalación: precache del shell ---
+// IMPORTANTE: ya NO se llama self.skipWaiting() aquí a propósito.
+// Esto hace que un Service Worker nuevo quede en estado "waiting" en vez
+// de activarse solo — así el index.html puede mostrar el aviso "Nueva
+// versión disponible" y activarlo recién cuando el usuario confirme.
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_VERSION).then((cache) => {
@@ -39,8 +43,15 @@ self.addEventListener('install', (event) => {
                     })
                 )
             );
-        }).then(() => self.skipWaiting())
+        })
     );
+});
+
+// --- Mensaje desde la página: activar el SW en espera ---
+self.addEventListener('message', (event) => {
+    if (event.data === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
 
 // --- Activación: limpiar caches viejos ---
