@@ -589,6 +589,30 @@
 </head>
 <body>
 
+<!-- ============================================================
+     GATE DE INSTALACIÓN OBLIGATORIA
+     Tapa toda la app hasta que el usuario instale la PWA (Chrome/Edge)
+     o, si el navegador no soporta instalación, se le indica cambiar
+     de navegador. Se controla desde el script al final del <body>.
+     ============================================================ -->
+<div id="install-gate" style="
+    position: fixed; inset: 0; z-index: 999999;
+    background: #151a21; color: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 32px; font-family: 'Inter', sans-serif;
+">
+    <img src="IMAGES/Speed_Logo3.png" alt="SPEED" style="width: 90px; height: 90px; margin-bottom: 24px; opacity: 0.95;">
+    <h1 id="install-gate-title" style="font-size: 1.4em; margin: 0 0 12px 0; font-weight: 700;">Instalá SPEED para continuar</h1>
+    <p id="install-gate-msg" style="max-width: 420px; color: #9aa0a6; line-height: 1.5; margin: 0 0 24px 0;">
+        Esta herramienta funciona como aplicación instalada. Instalala para acceder.
+    </p>
+    <button id="install-gate-btn" style="
+        display: none; background: #69FF8A; color: #151a21; border: none;
+        padding: 12px 28px; border-radius: 8px; cursor: pointer;
+        font-weight: 700; font-size: 15px; font-family: inherit;
+    ">Instalar app</button>
+</div>
+
 <div class="dashboard-container">
         <!-- Menú de navegación lateral -->
         <aside class="sidebar" id="sidebar">
@@ -1530,6 +1554,74 @@
     <script>
     /* Tema fijo: Noche (sin selector, controlado por app madre) */
     document.documentElement.setAttribute('data-theme', 'dark');
+    </script>
+
+    <script>
+    /* ============================================================
+       GATE DE INSTALACIÓN OBLIGATORIA
+       ============================================================ */
+    (function () {
+        const gate = document.getElementById('install-gate');
+        const title = document.getElementById('install-gate-title');
+        const msg = document.getElementById('install-gate-msg');
+        const btn = document.getElementById('install-gate-btn');
+
+        // ¿Ya está corriendo como app instalada?
+        function isStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches
+                || window.navigator.standalone === true; // iOS Safari instalado
+        }
+
+        // Si ya vino instalada, ni se muestra el gate
+        if (isStandalone()) {
+            gate.remove();
+            return;
+        }
+
+        let deferredPrompt = null;
+
+        // Chrome/Edge disparan esto cuando la PWA es instalable
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            title.textContent = 'Instalá SPEED para continuar';
+            msg.textContent = 'Esta herramienta funciona como aplicación instalada. Instalala para acceder.';
+            btn.style.display = 'inline-block';
+        });
+
+        btn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            if (outcome === 'accepted') {
+                // El evento 'appinstalled' de abajo se encarga de sacar el gate
+                btn.style.display = 'none';
+                msg.textContent = 'Instalando…';
+            }
+        });
+
+        // Se dispara cuando la instalación se completó
+        window.addEventListener('appinstalled', () => {
+            gate.remove();
+        });
+
+        // Si a los 2.5s no llegó beforeinstallprompt, asumimos navegador
+        // sin soporte de instalación (Firefox, Safari) y guiamos a cambiar
+        setTimeout(() => {
+            if (!deferredPrompt && !isStandalone()) {
+                title.textContent = 'Abrí SPEED en Chrome o Edge';
+                msg.textContent = 'Este navegador no permite instalar la aplicación. Copiá este enlace y abrilo en Google Chrome o Microsoft Edge para poder acceder.';
+                btn.style.display = 'inline-block';
+                btn.textContent = 'Copiar enlace';
+                btn.onclick = () => {
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        btn.textContent = 'Enlace copiado ✓';
+                    });
+                };
+            }
+        }, 2500);
+    })();
     </script>
 
     <script>
