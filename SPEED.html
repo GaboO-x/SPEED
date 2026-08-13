@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPEED</title>
+    <link rel="icon" type="image/png" href="IMAGES/Speed_Logo3.png">
+    <!-- Importación de la fuente Inter para una apariencia limpia y moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        
+        /* =========================
+           THEME SYSTEM (copied from Template_v2)
+           ========================= */
+        :root{
+            --primary-color:#1A3258;
+            --secondary-color:#6c757d;
+            --text-color:#343a40;
+            --bg-color-main:#f0f4f8;  /* match current SPEED background */
+            --card-bg:#ffffff;
+            --border-color:#dee2e6;
+            --shadow-color: rgba(0,0,0,0.10);
+            --font-family:'Inter', sans-serif;
+            --border-radius: 8px;
+
+            /* SPEED-specific helpers */
+            --nav-hover-bg:#e6f0f7;
+            --nav-active-bg:#d0e0ed;
+            --drag-over-bg:#a7d9f8;
+            --toggle-bg: rgba(26,50,88,0.10);
+            --toggle-hover: rgba(26,50,88,0.14);
+            --toggle-active: rgba(26,50,88,0.18);
+        }
+
+        :root[data-theme="dark"]{
+          --primary-color:#69FF8A;
+          --secondary-color:#9aa0a6;
+          --text-color:#69FF8A;
+          --bg-color-main:#2e3440;
+          --card-bg:#151a21;
+          --border-color:#4e5c71;
+          --shadow-color:rgba(0,0,0,0.55);
+
+          --nav-hover-bg:#1c2330;
+          --nav-active-bg:#223047;
+          --drag-over-bg:#2a3b55;
+          --toggle-bg: rgba(255,255,255,0.10);
+          --toggle-hover: rgba(255,255,255,0.16);
+          --toggle-active: rgba(255,255,255,0.20);
+        }
+
+        :root[data-theme="accessible"]{
+          --primary-color:#0A2647;
+          --secondary-color:#4b5563;
+          --text-color:#69FF8A;
+          --bg-color-main:#f3f4f6;
+          --card-bg:#ffffff;
+          --border-color:#374151;
+          --shadow-color:rgba(0,0,0,0.12);
+
+          --nav-hover-bg:#e5e7eb;
+          --nav-active-bg:#d1d5db;
+          --drag-over-bg:#cbd5e1;
+          --toggle-bg: rgba(10,38,71,0.10);
+          --toggle-hover: rgba(10,38,71,0.14);
+          --toggle-active: rgba(10,38,71,0.18);
+        }
+
+        :root[data-theme="nord"]{
+          --primary-color:#69FF8A;
+          --secondary-color:#81a1c1;
+          --text-color:#f36b21;
+          --bg-color-main:#2e3440;
+          --card-bg:#3b4252;
+          --border-color:#4c566a;
+          --shadow-color:rgba(0,0,0,0.55);
+
+          --nav-hover-bg:#434c5e;
+          --nav-active-bg:#4c566a;
+          --drag-over-bg:#5e6880;
+          --toggle-bg: rgba(255,255,255,0.10);
+          --toggle-hover: rgba(255,255,255,0.14);
+          --toggle-active: rgba(255,255,255,0.18);
+        }
+
+/* Estilos generales del cuerpo */
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--bg-color-main); /* Fondo suave */
+            color: var(--text-color);
+            overflow: hidden; /* Evita el scroll del cuerpo principal */
+        }
+
+        /* Contenedor principal para el dashboard */
+        .dashboard-container {
+            display: flex;
+            width: 100%;
+            height: 100vh; /* Ocupa toda la altura de la ventana */
+        }
+
+        /* Menú de navegación lateral flotante */
+        .sidebar {
+            width: 250px; /* Ancho del menú */
+            background-color: var(--card-bg); /* Blanco */
+            color: var(--primary-color); /* Azul oscuro para el texto y los iconos */
+            padding: 60px 20px 20px 20px; /* Ajustado para bajar todos los elementos como grupo */
+            box-shadow: 4px 0 10px var(--shadow-color); /* Sombra a la derecha */
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* Evita que el sidebar se encoja */
+            overflow-y: auto; /* Permite scroll si hay muchos elementos */
+            position: relative; /* Para el botón de colapsar */
+            transition: width 0.3s ease; /* Transición para colapsar */
+        }
+
+        .sidebar.collapsed {
+            width: 70px; /* Ancho cuando está colapsado */
+        }
+
+        .sidebar.collapsed .app-logo {
+            display: none; /* Oculta el logo cuando está colapsado */
+        }
+
+        .sidebar.collapsed .nav-item span {
+            display: none; /* Oculta el texto de los elementos de navegación */
+        }
+
+        .sidebar.collapsed .nav-item {
+            justify-content: center; /* Centra el icono cuando el texto está oculto */
+            padding-top: 6px; /* Volver al padding original */
+            padding-bottom: 6px; /* Volver al padding original */
+        }
+
+        .sidebar-toggle-btn {
+            background-color: rgba(26, 50, 88, 0.7); /* kept as-is */ /* Azul oscuro con 70% de opacidad */
+            color: white; /* Mantiene el icono blanco para contraste */
+            border: none;
+            padding: 8px; /* Reducido para hacerlo más pequeño */
+            border-radius: 50%; /* Botón redondo */
+            cursor: pointer;
+            position: absolute;
+            top: 10px; /* Se mantiene en su posición original relativa al borde superior del sidebar */
+            right: 10px;
+            z-index: 10;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+            font-size: 0.9em; /* Reducido el tamaño del icono */
+        }
+
+        .sidebar-toggle-btn:hover {
+            background-color: #2a4365; /* Un tono más oscuro de azul para el hover */
+            opacity: 1; /* Opacidad completa al pasar el ratón */
+        }
+
+        .app-logo {
+            max-width: 100%; /* Asegura que la imagen no se desborde */
+            height: auto; /* Mantiene la proporción */
+            margin-top: 0; /* Revertido a 0 para que el padding del sidebar lo maneje */
+            margin-bottom: 20px; /* Espacio debajo del logo */
+            display: block; /* Para centrar la imagen */
+            margin-left: auto;
+            margin-right: auto;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1; /* Permite que la lista ocupe el espacio disponible */
+        }
+
+        /* Imagen inferior del sidebar (debajo de las apps) */
+        .sidebar-bottom-logo-expanded {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 15px auto 0 auto;
+        }
+
+        .sidebar-bottom-logo-collapsed {
+            display: none;
+            max-width: 28px;
+            height: auto;
+            margin: 15px auto 0 auto;
+        }
+
+        .sidebar.collapsed .sidebar-bottom-logo-expanded {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-bottom-logo-collapsed {
+            display: block;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            cursor: grab; /* Indica que el elemento es arrastrable */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: var(--primary-color); /* Asegura que el texto sea azul oscuro */
+        }
+
+        .nav-item:hover {
+            background-color: var(--nav-hover-bg); /* Azul muy claro para el hover */
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background-color: var(--nav-active-bg); /* Azul claro para el estado activo */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra más suave para el activo */
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            margin-right: 6px;
+            font-size: 0.9em;
+            color: var(--primary-color); /* Asegura que el icono sea azul oscuro */
+        }
+
+        /* Estilos para arrastrar y soltar */
+        .nav-item.dragging {
+            opacity: 0.5;
+            border: 1px dashed var(--primary-color);
+        }
+
+        .nav-item.drag-over {
+            background-color: var(--drag-over-bg); /* Un azul más intenso para indicar que se puede soltar aquí */
+            border: 1px solid var(--primary-color);
+        }
+
+        /* Contenido principal (donde se cargan las apps) */
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: var(--bg-color-main); /* Fondo claro para el contenido */
+            display: flex;
+            flex-direction: column;
+            position: relative; /* Necesario para el posicionamiento absoluto de los iframes */
+            overflow-y: auto; /* Permite scroll cuando el iframe crece más que la ventana */
+            overflow-x: hidden;
+        }
+
+        /* Estilos de los iframes */
+        .app-iframe {
+            position: absolute; /* Permite que se superpongan */
+            top: 20px; /* Alineado con el padding del main-content */
+            left: 20px; /* Alineado con el padding del main-content */
+            width: calc(100% - 40px); /* Ocupa el ancho total menos el padding */
+            min-height: calc(100% - 40px); /* Altura mínima: llena la vista aunque el contenido sea corto */
+            /* height se fija dinámicamente vía JS (resizeIframeToContent) según el contenido real */
+            border: 1px solid var(--border-color); /* Borde suave */
+            border-radius: 8px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            background-color: var(--card-bg); /* Fondo del iframe */
+            display: none; /* Oculto por defecto */
+        }
+
+        .app-iframe.active-iframe {
+            display: block; /* Muestra solo el iframe activo */
+        }
+
+        /* ============================================================
+           Investigation sidebar (global, vive en SPEED, no en un iframe)
+           Recibe entradas de todas las apps hijas vía postMessage
+           (action: 'addToTrail'). Solo dura la sesión actual (no persiste).
+           ============================================================ */
+        #trailSidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: 300px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -8px 0 20px var(--shadow-color);
+            transform: translateX(100%);
+            transition: transform 0.25s ease;
+        }
+        #trailSidebar.open { transform: translateX(0); }
+        #trailSidebar .trail-sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--primary-color);
+        }
+        #trailSidebar .trail-sidebar-header h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        #trailSidebar .trail-sidebar-close {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .trail-sidebar-actions {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .trail-autotemplate-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            color: var(--secondary-color);
+            cursor: pointer;
+            user-select: none;
+        }
+        .trail-autotemplate-toggle input {
+            cursor: pointer;
+        }
+        .trail-copy-all-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #e21c1c;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 7px 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .trail-copy-all-btn:hover { opacity: 0.85; background: #c81515; }
+        .trail-copy-all-btn.copied {
+            background: #16a34a;
+        }
+        .trail-section-missing {
+            color: var(--secondary-color);
+            font-size: 0.72rem;
+            font-style: italic;
+            padding: 6px 2px 10px;
+        }
+        #trailList {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .trail-section {
+            margin-bottom: 16px;
+        }
+        .trail-section-header {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--secondary-color);
+            padding: 4px 2px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 8px;
+        }
+        .trail-card {
+            background: var(--bg-color-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+            cursor: grab;
+            position: relative;
+            transition: border-color 0.15s;
+        }
+        .trail-card:hover { border-color: var(--primary-color); }
+        .trail-card.dragging {
+            opacity: 0.5;
+            border: 1px dashed var(--primary-color);
+        }
+        .trail-card.drag-over {
+            background-color: var(--drag-over-bg);
+            border: 1px solid var(--primary-color);
+        }
+        .trail-card-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 2px;
+            z-index: 1;
+        }
+        .trail-card-remove:hover { color: #f87171; }
+        .trail-card-text {
+            width: 100%;
+            min-height: 70px;
+            resize: vertical;
+            font-size: 0.78rem;
+            font-family: var(--font-family);
+            border: none;
+            padding: 4px 22px 2px 2px;
+            background: transparent;
+            color: var(--text-color);
+            box-sizing: border-box;
+            line-height: 1.35;
+        }
+        .trail-card-text:focus {
+            outline: none;
+        }
+        .trail-empty-hint {
+            color: var(--secondary-color);
+            font-size: 0.78rem;
+            text-align: center;
+            padding: 30px 12px;
+        }
+        /* Timer persistente (antes vivía en cada Template, se reiniciaba
+           al cambiar de MDR a L2; ahora vive al fondo del menú de apps y
+           nunca desaparece — al colapsar el sidebar, se achica pero
+           se queda flotando en la misma zona en vez de desaparecer. */
+        #speedTimer {
+            margin: 15px auto 0 auto;
+            width: fit-content;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(26,50,88,0.92);
+            color: #fff;
+            font-family: var(--font-family);
+            font-size: 16px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            user-select: none;
+            flex-shrink: 0;
+        }
+        #speedTimer i { font-size: 17px; }
+        #speedTimer-text { min-width: 84px; text-align: center; }
+
+        .sidebar.collapsed #speedTimer {
+            flex-direction: column;
+            padding: 6px 4px;
+            gap: 2px;
+            border-radius: 12px;
+        }
+        .sidebar.collapsed #speedTimer-text {
+            display: block;
+            min-width: 0;
+            font-size: 10px;
+        }
+        .sidebar.collapsed #speedTimer i { font-size: 14px; }
+
+        #trailSidebar.open + #trailToggleBtn {
+            right: 300px;
+        }
+        @media (max-width: 768px) {
+            #trailSidebar.open + #trailToggleBtn { right: 85vw; }
+        }
+        #trailToggleBtn {
+            display: block;
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            z-index: 150;
+            transition: right 0.25s ease;
+            background: var(--primary-color);
+            color: var(--bg-color-main);
+            border: none;
+            border-radius: 8px 0 0 8px;
+            padding: 10px 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        @media (max-width: 768px) {
+            #trailSidebar { width: 85vw; }
+        }
+
+        /* Media Queries para responsividad */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%; /* Ocupa todo el ancho en móvil */
+                height: auto; /* Altura automática */
+                padding: 15px 10px; /* Padding original para móvil */
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                position: static; /* No flotante en móvil */
+                flex-direction: row; /* Elementos en fila */
+                flex-wrap: wrap; /* Permite que los elementos se envuelvan */
+                justify-content: center; /* Centra los elementos */
+                overflow-x: auto; /* Scroll horizontal si es necesario */
+                overflow-y: hidden; /* Oculta scroll vertical */
+            }
+
+            .sidebar.collapsed {
+                width: 100%; /* No se colapsa en ancho, solo oculta texto */
+            }
+
+            .sidebar-toggle-btn {
+                position: static; /* No flotante en móvil */
+                margin-bottom: 15px; /* Espacio debajo del botón */
+                display: none; /* Ocultar el botón de colapsar en móvil si el diseño es de fila */
+            }
+
+            .app-logo {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .nav-list {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px; /* Espacio entre elementos reducido */
+            }
+
+            .nav-item {
+                flex-direction: column; /* Icono y texto apilados */
+                padding: 5px 7px; /* Ajustado para móvil */
+                font-size: 0.75em; /* Ajustado para móvil */
+                margin-bottom: 0; /* Sin margen inferior */
+                width: auto; /* Ancho automático */
+                min-width: 70px; /* Ancho mínimo para cada elemento */
+                text-align: center;
+                color: var(--primary-color); /* Asegura el color en móvil */
+            }
+
+            .nav-item i {
+                margin-right: 0;
+                margin-bottom: 2px; /* Ajustado para móvil */
+                font-size: 0.8em; /* Ajustado para móvil */
+                color: var(--primary-color); /* Asegura el color en móvil */
+            }
+
+            #speedTimer {
+                width: 100%;
+                margin: 10px 0 0 0;
+            }
+
+            .main-content {
+                padding: 10px;
+                height: calc(100vh - var(--sidebar-height-mobile)); /* Ajusta la altura del contenido */
+            }
+        }
+
+        /* Estilos para el scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+        <!-- Menú de navegación lateral -->
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle-btn" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <!-- Asegúrate de que la imagen 'Speed Logo.png'
+                 esté en la misma carpeta que este archivo HTML para que se muestre correctamente. -->
+            <img src="IMAGES/Speed Logo.png" alt="SPEED Logo" class="app-logo">
+            <ul class="nav-list">
+                <!-- Cada elemento de navegación ahora es arrastrable -->
+                <li class="nav-item" data-app="Launcher_Templates.html" draggable="true">
+                    <i class="fa-solid fa-glasses"></i>
+                    <span>Templates</span>
+                </li>
+                <li class="nav-item" data-app="OSINT.html" draggable="true">
+                    <i class="fa-solid fa-skull"></i>
+                    <span>OSINT (IP/URL/HASH)</span>
+                </li>
+                <li class="nav-item" data-app="KQL-template-builder.html" draggable="true">
+                    <i class="fa-brands fa-windows"></i>
+                    <span>KQL-template-builder</span>
+                </li>
+                <li class="nav-item" data-app="Data_Normalizer.html" draggable="true">
+                    <i class="fa-solid fa-database"></i>
+                    <span>Data Normalizer</span>
+                </li>
+                <li class="nav-item" data-app="Notes.html" draggable="true">
+                    <i class="fa-solid fa-database"></i>
+                    <span>Notes</span>
+                </li>
+                <li class="nav-item" data-app="MITRE ATTACK.html" draggable="true">
+                    <i class="fas fa-solid fa-bug"></i>
+                    <span>MITRE ATT&CK</span>
+                </li>
+                <li class="nav-item" data-app="ProcessLookup.html" draggable="true">
+                    <i class="fas fa-network-wired"></i>
+                    <span>ProcessLookup</span>
+                </li>
+                <li class="nav-item" data-app="Cybersecurity Dictionary Attacks.html" draggable="true">
+                    <i class="fas fa-book"></i>
+                    <span>Cybersecurity Dictionary</span>
+                </li>
+                </li>
+                <li class="nav-item" data-app="StudyTracker.html" draggable="true">
+                    <i class="fas fa-book"></i>
+                    <span>StudyTracker</span>
+                </li>
+                </li>
+                <li class="nav-item" data-app="PersonalNotes.html" draggable="true">
+                    <i class="fas fa-book"></i>
+                    <span>PersonalNotes</span>
+                </li>
+            </ul>
+            <div id="speedTimer" aria-label="Timer" role="status">
+                <i class="fas fa-stopwatch" aria-hidden="true"></i>
+                <span id="speedTimer-text">00:00:00</span>
+            </div>
+        </aside>
+
+        <!-- Contenido principal con los iframes de las apps -->
+        <main class="main-content">
+            <!-- Cada iframe tiene un ID único y su fuente correspondiente -->
+            <!-- La clase 'active-iframe' se gestiona con JavaScript para mostrar la app actual -->
+            <iframe id="iframe-OSINT" class="app-iframe" src="APPS/OSINT.html"></iframe>
+            <iframe id="iframe-KQL-template-builder" class="app-iframe" src="APPS/KQL-template-builder.html"></iframe>
+            <iframe id="iframe-Data_Normalizer" class="app-iframe" src="APPS/Data_Normalizer.html"></iframe>
+            <iframe id="iframe-Notes" class="app-iframe" src="APPS/Notes.html"></iframe>
+            <iframe id="iframe-MITRE ATTACK" class="app-iframe" src="APPS/MITRE ATTACK.html"></iframe>
+            <iframe id="iframe-CVE_WIN_PORT" class="app-iframe" src="APPS/CVE_WIN_PORT.html"></iframe>
+            <iframe id="iframe-ProcessLookup" class="app-iframe" src="APPS/ProcessLookup.html"></iframe>
+            <iframe id="iframe-Cybersecurity Dictionary Attacks" class="app-iframe" src="APPS/Cybersecurity Dictionary Attacks.html"></iframe>
+            <iframe id="iframe-Templates" class="app-iframe" src="TEMPLATES/Launcher_Templates.html"></iframe>
+            <iframe id="iframe-StudyTracker" class="app-iframe" src="APPS/StudyTracker.html"></iframe>
+            <iframe id="iframe-PersonalNotes" class="app-iframe" src="APPS/PersonalNotes.html"></iframe>
+        </main>
+    </div>
+
+    <!-- Investigation sidebar (global) -->
+    <div id="trailSidebar">
+        <div class="trail-sidebar-header">
+            <h3><i class="fas fa-magnifying-glass-plus"></i> Investigation</h3>
+            <button id="trailSidebarClose" class="trail-sidebar-close" title="Close">&times;</button>
+        </div>
+        <div class="trail-sidebar-actions">
+            <button id="trailCopyAllBtn" class="trail-copy-all-btn" title="Copiar toda la Investigation">
+                <i class="fas fa-copy"></i> Send to template
+            </button>
+        </div>
+        <div id="trailList"></div>
+    </div>
+    <button id="trailToggleBtn" title="Ver Investigation">
+        <i class="fas fa-layer-group"></i> <span id="trailToggleCount"></span>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const navList = document.querySelector('.nav-list'); // Referencia a la lista de navegación
+            let navItems = document.querySelectorAll('.nav-item'); // Se actualizará después de cargar el orden
+            const mainContent = document.querySelector('.main-content'); // Contenedor de los iframes
+
+            // Mapeo de nombres de archivo a IDs de iframe para fácil acceso
+            const appToIframeIdMap = {
+                "Cybersecurity Dictionary Attacks.html": "iframe-Cybersecurity Dictionary Attacks",
+                "KQL-template-builder.html": "iframe-KQL-template-builder",
+                "Data_Normalizer.html": "iframe-Data_Normalizer",
+                "Notes.html": "iframe-Notes",
+                "OSINT.html": "iframe-OSINT",
+                "Launcher_Templates.html": "iframe-Templates",
+                "CVE_WIN_PORT.html": "iframe-CVE_WIN_PORT",
+                "ProcessLookup.html": "iframe-ProcessLookup",
+                "MITRE ATTACK.html": "iframe-MITRE ATTACK",
+                "StudyTracker.html": "iframe-StudyTracker",
+                "PersonalNotes.html": "iframe-PersonalNotes",
+            };
+
+            // Objeto global para almacenar las posiciones de desplazamiento de cada iframe
+            const iframeScrollPositions = {};
+
+            // Objeto para no duplicar el MutationObserver en el mismo iframe
+            const iframeObservers = {};
+
+            // ============================================================
+            // Investigation trail (sidebar global, solo de sesión)
+            // Recibe entradas de las apps hijas vía postMessage
+            // (action: 'addToTrail', data: 'texto capturado', section: 'mitre'|'dictionary'|'osint'|'process').
+            // No persiste entre recargas, a propósito. Se agrupa en 4 secciones
+            // fijas, en este orden: MITRE, Dictionary, OSINT, Process.
+            // ============================================================
+            const trailSidebar = document.getElementById('trailSidebar');
+            const trailList = document.getElementById('trailList');
+            const trailToggleBtn = document.getElementById('trailToggleBtn');
+            const trailToggleCount = document.getElementById('trailToggleCount');
+            const trailSidebarClose = document.getElementById('trailSidebarClose');
+
+            const SECTION_ORDER = ['mitre', 'dictionary', 'osint', 'process'];
+            const SECTION_LABELS = {
+                mitre: 'MITRE ATT&CK',
+                dictionary: 'Cybersecurity Concepts: Attacks / Tools',
+                osint: 'OSINT',
+                process: 'Process'
+            };
+
+            let trail = []; // [{ id, section, text }] — text es lo único editable, ya no hay "data" fijo + notas separadas
+            let trailIdCounter = 0;
+            let draggedTrailCard = null;
+            const pendingPortLookups = {}; // requestId -> { port }, para el timeout de fallback
+            const pendingMitreLookups = {}; // requestId -> { mitreId }, para el timeout de fallback
+
+            function addToTrail(data, section, source) {
+                if (!data) return;
+                const text = String(data);
+                const sec = SECTION_ORDER.includes(section) ? section : 'dictionary';
+                // No duplicar: mismo texto Y misma sección ya presente no agrega tarjeta nueva.
+                if (trail.some(t => t.text === text && t.section === sec)) {
+                    trailSidebar.classList.add('open');
+                    return;
+                }
+                // source (opcional): { app, type, value, kind?, os? } — permite
+                // reabrir la tarjeta/técnica/puerto/proceso original cuando el
+                // usuario selecciona esta nota para editarla.
+                trail.push({ id: 'trail-' + (++trailIdCounter), section: sec, text, source: source || null });
+                renderTrail();
+                trailSidebar.classList.add('open');
+            }
+
+            function removeFromTrail(id) {
+                trail = trail.filter(t => t.id !== id);
+                renderTrail();
+            }
+
+            function renderTrail() {
+                // Antes de re-renderizar, preservar lo que el usuario tenga
+                // escrito en cada textarea (por si renderTrail se llama con foco activo)
+                trailList.querySelectorAll('.trail-card-text').forEach(ta => {
+                    const item = trail.find(t => t.id === ta.dataset.id);
+                    if (item) item.text = ta.value;
+                });
+
+                trailToggleCount.textContent = trail.length || '';
+
+                // Las 4 secciones siempre se muestran, tengan o no información,
+                // para que sea claro de un vistazo qué falta capturar todavía.
+                trailList.innerHTML = SECTION_ORDER.map(sec => {
+                    const items = trail.filter(t => t.section === sec);
+                    if (!items.length) {
+                        return `<div class="trail-section" data-section="${sec}">
+                            <div class="trail-section-header">${SECTION_LABELS[sec]}</div>
+                            <p class="trail-section-missing">No information yet.</p>
+                        </div>`;
+                    }
+                    const cards = items.map(t => `
+                        <div class="trail-card" data-id="${t.id}" data-section="${sec}" draggable="true">
+                            <button class="trail-card-remove" title="Eliminar"><i class="fas fa-xmark"></i></button>
+                            <textarea class="trail-card-text" data-id="${t.id}"></textarea>
+                        </div>
+                    `).join('');
+                    return `<div class="trail-section" data-section="${sec}">
+                        <div class="trail-section-header">${SECTION_LABELS[sec]}</div>
+                        ${cards}
+                    </div>`;
+                }).join('');
+
+                // El valor se asigna vía .value (no interpolado en el template) para
+                // evitar que un dato con caracteres especiales rompa el HTML o
+                // permita inyección si el texto viene de una app hija no confiable.
+                trail.forEach(t => {
+                    const ta = trailList.querySelector(`.trail-card-text[data-id="${t.id}"]`);
+                    if (ta) ta.value = t.text;
+                });
+
+                addTrailDragListeners();
+            }
+
+            trailList.addEventListener('click', (e) => {
+                const removeBtn = e.target.closest('.trail-card-remove');
+                if (!removeBtn) return;
+                const card = removeBtn.closest('.trail-card');
+                if (card) removeFromTrail(card.dataset.id);
+            });
+
+            trailList.addEventListener('input', (e) => {
+                if (!e.target.classList.contains('trail-card-text')) return;
+                const item = trail.find(t => t.id === e.target.dataset.id);
+                if (item) item.text = e.target.value;
+            });
+
+            // Al seleccionar (enfocar) una nota para editarla, se muestra
+            // automáticamente la tarjeta/técnica/puerto/proceso original de
+            // donde salió, para poder tomar nota extra viendo la fuente en
+            // vivo. Usa 'focusin' (no 'focus') porque este sí burbujea.
+            trailList.addEventListener('focusin', (e) => {
+                if (!e.target.classList.contains('trail-card-text')) return;
+                const item = trail.find(t => t.id === e.target.dataset.id);
+                if (item && item.source) revealTrailSource(item.source);
+            });
+
+            function addTrailDragListeners() {
+                trailList.querySelectorAll('.trail-card').forEach(card => {
+                    card.addEventListener('dragstart', (e) => {
+                        // No arrastrar si el drag empezó sobre el textarea (para poder seleccionar texto)
+                        if (e.target.classList.contains('trail-card-text')) { e.preventDefault(); return; }
+                        draggedTrailCard = card;
+                        e.dataTransfer.effectAllowed = 'move';
+                        card.classList.add('dragging');
+                    });
+
+                    card.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        // Solo se puede soltar dentro de la misma sección
+                        if (card !== draggedTrailCard && draggedTrailCard && card.dataset.section === draggedTrailCard.dataset.section) {
+                            card.classList.add('drag-over');
+                        }
+                    });
+
+                    card.addEventListener('dragleave', () => {
+                        card.classList.remove('drag-over');
+                    });
+
+                    card.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        card.classList.remove('drag-over');
+                        if (!draggedTrailCard || draggedTrailCard === card) return;
+                        if (card.dataset.section !== draggedTrailCard.dataset.section) return; // no mezclar secciones
+
+                        // Preservar texto actual antes de reordenar el array
+                        trailList.querySelectorAll('.trail-card-text').forEach(ta => {
+                            const item = trail.find(t => t.id === ta.dataset.id);
+                            if (item) item.text = ta.value;
+                        });
+
+                        const draggedId = draggedTrailCard.dataset.id;
+                        const targetId = card.dataset.id;
+                        const draggedIndex = trail.findIndex(t => t.id === draggedId);
+                        const targetIndex = trail.findIndex(t => t.id === targetId);
+                        const [moved] = trail.splice(draggedIndex, 1);
+                        trail.splice(targetIndex, 0, moved);
+                        renderTrail();
+                    });
+
+                    card.addEventListener('dragend', () => {
+                        if (draggedTrailCard) draggedTrailCard.classList.remove('dragging');
+                        trailList.querySelectorAll('.trail-card').forEach(c => c.classList.remove('drag-over'));
+                        draggedTrailCard = null;
+                    });
+                });
+            }
+
+            trailToggleBtn.addEventListener('click', () => trailSidebar.classList.toggle('open'));
+            trailSidebarClose.addEventListener('click', () => trailSidebar.classList.remove('open'));
+
+            // ============================================================
+            // Toggle "Auto-abrir Templates al copiar": cuando está apagado,
+            // SPEED deja de reenviar los mensajes 'navigate' que las apps
+            // mandan hacia Launcher_Templates.html tras un "Copy for report".
+            // El texto se sigue copiando al portapapeles (eso lo hace cada
+            // app por su cuenta) y sigue llegando a Investigation vía
+            // 'addToTrail' — solo se omite el salto automático a Templates.
+            // ============================================================
+            let autoSendToTemplates = true;
+            const autoTemplateToggle = document.getElementById('autoTemplateToggle');
+            if (autoTemplateToggle) {
+                autoTemplateToggle.addEventListener('change', () => {
+                    autoSendToTemplates = autoTemplateToggle.checked;
+                });
+            }
+
+            // ============================================================
+            // Botón "Copiar todo": arma el texto de las 4 secciones y lo
+            // manda al portapapeles. Si alguna sección no tiene información
+            // capturada, la manda directo (sin preguntar nada) al template
+            // que esté activo en ese momento (MDR o L2), insertándose en su
+            // sección correspondiente ("## Artifacts" en MDR, "OSINT
+            // Summary" en L2) — reutiliza el mismo mecanismo que ya usa el
+            // botón "Copy for report" de OSINT (type: 'osint-data'),
+            // así que no hace falta tocar ninguno de los dos templates.
+            // ============================================================
+            const trailCopyAllBtn = document.getElementById('trailCopyAllBtn');
+
+            function buildTrailCopyText() {
+                return SECTION_ORDER.map(sec => {
+                    const items = trail.filter(t => t.section === sec);
+                    if (!items.length) return null;
+                    return `-- ${SECTION_LABELS[sec]} --\n` + items.map(t => t.text).join('\n\n');
+                }).filter(Boolean).join('\n\n');
+            }
+
+            async function copyTrailToClipboard() {
+                const text = buildTrailCopyText();
+                if (!text) return;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    trailCopyAllBtn.classList.add('copied');
+                    setTimeout(() => trailCopyAllBtn.classList.remove('copied'), 900);
+                } catch (err) {
+                    console.warn('[trailCopyAllBtn] No se pudo copiar al portapapeles:', err);
+                }
+            }
+
+            function goToAppSection(appFileName) {
+                const targetNavItem = document.querySelector(`.nav-item[data-app="${appFileName}"]`);
+                if (targetNavItem) {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    targetNavItem.classList.add('active');
+                }
+                showApp(appFileName);
+            }
+
+            // Cambia a la app fuente y le reenvía el mismo tipo de mensaje
+            // (type/value/kind/os) que esa app ya sabe interpretar para
+            // auto-buscar/resaltar el elemento original (puerto, técnica,
+            // tarjeta de Dictionary, o proceso), reutilizando los listeners
+            // cross-app que ya existían para la navegación normal.
+            function revealTrailSource(source) {
+                if (!source || !source.app) return;
+                goToAppSection(source.app);
+                const iframeId = appToIframeIdMap[source.app];
+                const targetIframe = document.getElementById(iframeId);
+                if (targetIframe && targetIframe.contentWindow) {
+                    targetIframe.contentWindow.postMessage(source, '*');
+                }
+            }
+
+            trailCopyAllBtn.addEventListener('click', async () => {
+                await copyTrailToClipboard();
+                const text = buildTrailCopyText();
+                if (!text) return;
+
+                // Reenvía directo al iframe de Templates: Launcher_Templates.html
+                // ya sabe reenviar 'osint-data' SOLO al template activo (MDR o
+                // L2), y cada uno ya sabe en qué sección insertarlo.
+                const templatesIframe = document.getElementById('iframe-Templates');
+                if (templatesIframe && templatesIframe.contentWindow) {
+                    templatesIframe.contentWindow.postMessage({ type: 'osint-data', value: text }, '*');
+                }
+
+                // Solo cambia la vista a Templates si el toggle de auto-abrir
+                // está prendido; si está apagado, se inserta igual mientras
+                // el usuario se queda donde estaba.
+                if (autoSendToTemplates) {
+                    goToAppSection('Launcher_Templates.html');
+                }
+
+                // La información ya quedó insertada en el template, así que
+                // no hace falta seguir viendo la sidebar de Investigation.
+                trailSidebar.classList.remove('open');
+            });
+
+            renderTrail(); // estado inicial (4 secciones vacías, botón visible)
+
+            // ============================================================
+            // Timer persistente (antes vivía duplicado dentro de cada
+            // Template —MDR y L2— y se reiniciaba cada vez que se cambiaba
+            // entre ellos o se recargaba ese iframe. Ahora vive acá, a nivel
+            // SPEED, arranca una sola vez al cargar la página y nunca
+            // desaparece ni se reinicia por cambiar de app o de template.
+            // ============================================================
+            (function initSpeedTimer() {
+                function pad(n) { return (n < 10 ? '0' : '') + n; }
+                function fmt(ms) {
+                    const total = Math.floor(ms / 1000);
+                    const h = Math.floor(total / 3600);
+                    const m = Math.floor((total % 3600) / 60);
+                    const s = total % 60;
+                    return pad(h) + ':' + pad(m) + ':' + pad(s);
+                }
+                const NORMAL_LIMIT_SEC = 20 * 60;   // 0:00 -> 20:00
+                const WARNING_LIMIT_SEC = 35 * 60;  // 20:01 -> 35:00
+                const box = document.getElementById('speedTimer');
+                const textEl = document.getElementById('speedTimer-text');
+                if (!box || !textEl) return;
+
+                function applyState(totalSeconds) {
+                    if (totalSeconds <= NORMAL_LIMIT_SEC) {
+                        box.style.backgroundColor = 'green';
+                        box.style.color = 'white';
+                    } else if (totalSeconds <= WARNING_LIMIT_SEC) {
+                        box.style.backgroundColor = 'yellow';
+                        box.style.color = 'black';
+                    } else {
+                        box.style.backgroundColor = 'red';
+                        box.style.color = 'white';
+                    }
+                }
+
+                const startAt = Date.now();
+                function tick() {
+                    const elapsedMs = Date.now() - startAt;
+                    const elapsedSeconds = Math.floor(elapsedMs / 1000);
+                    applyState(elapsedSeconds);
+                    textEl.textContent = fmt(elapsedMs);
+                }
+                tick();
+                setInterval(tick, 1000);
+            })();
+
+            // Ajusta la altura del iframe a la altura real de su contenido interno
+            function resizeIframeToContent(iframe) {
+                try {
+                    const doc = iframe.contentWindow && iframe.contentWindow.document;
+                    if (!doc || !doc.body) return;
+                    // Medimos el borde inferior real de los hijos directos del body.
+                    // Evitamos usar body.scrollHeight / documentElement.scrollHeight porque
+                    // algunas apps tienen "min-height: 100vh" en el body, que se retroalimenta
+                    // con la altura que nosotros mismos le asignamos al iframe (bucle infinito
+                    // que deja un scroll/alto residual aunque el contenido real sea más corto).
+                    const children = Array.from(doc.body.children);
+                    const contentHeight = children.length
+                        ? Math.max(...children.map(el => el.getBoundingClientRect().bottom))
+                        : doc.body.scrollHeight;
+                    const minHeight = iframe.parentElement.clientHeight - 40; // igual al min-height CSS
+                    iframe.style.height = Math.max(contentHeight, minHeight) + 'px';
+                } catch (e) {
+                    console.warn(`[resizeIframeToContent] No se pudo ajustar altura de ${iframe.id}:`, e);
+                }
+            }
+
+            // Observa cambios de contenido dentro del iframe (resultados de búsqueda, etc.)
+            // para recalcular su altura sin depender de recargar la página
+            function watchIframeContent(iframe) {
+                if (iframeObservers[iframe.id]) return; // ya está observando
+                try {
+                    const doc = iframe.contentWindow && iframe.contentWindow.document;
+                    if (!doc || !doc.body) return;
+                    const observer = new MutationObserver(() => resizeIframeToContent(iframe));
+                    observer.observe(doc.body, { childList: true, subtree: true, attributes: true });
+                    iframeObservers[iframe.id] = observer;
+                } catch (e) {
+                    console.warn(`[watchIframeContent] No se pudo observar ${iframe.id}:`, e);
+                }
+            }
+
+            // Variable para almacenar el elemento que se está arrastrando
+            let draggedItem = null;
+
+            // Función para guardar el orden actual de los elementos en localStorage
+            function saveNavOrder() {
+                const order = Array.from(navList.children).map(item => item.dataset.app);
+                localStorage.setItem('navOrder', JSON.stringify(order));
+                console.log('Orden de navegación guardado:', order);
+            }
+
+            // Función para cargar y aplicar el orden guardado de los elementos
+            function loadNavOrder() {
+                const savedOrder = JSON.parse(localStorage.getItem('navOrder'));
+                if (savedOrder) {
+                    const fragment = document.createDocumentFragment();
+                    savedOrder.forEach(appFile => {
+                        const item = document.querySelector(`.nav-item[data-app="${appFile}"]`);
+                        if (item) {
+                            fragment.appendChild(item);
+                        }
+                    });
+                    navList.appendChild(fragment);
+                    console.log('Orden de navegación cargado y aplicado.');
+                }
+                // Actualizar la NodeList de navItems después de cargar el orden
+                navItems = document.querySelectorAll('.nav-item');
+                addDragDropListeners(); // Volver a añadir los listeners a los elementos reordenados
+            }
+
+            // Función para añadir los listeners de arrastrar y soltar a todos los elementos de navegación
+            function addDragDropListeners() {
+                navItems.forEach(item => {
+                    item.addEventListener('dragstart', (e) => {
+                        draggedItem = item;
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/html', item.innerHTML); // Esto es opcional, pero ayuda con algunos navegadores
+                        item.classList.add('dragging');
+                    });
+
+                    item.addEventListener('dragover', (e) => {
+                        e.preventDefault(); // Permite soltar
+                        if (item !== draggedItem && !item.classList.contains('drag-over')) {
+                            item.classList.add('drag-over');
+                        }
+                    });
+
+                    item.addEventListener('dragenter', (e) => {
+                        e.preventDefault();
+                        if (item !== draggedItem) {
+                            item.classList.add('drag-over');
+                        }
+                    });
+
+                    item.addEventListener('dragleave', () => {
+                        item.classList.remove('drag-over');
+                    });
+
+                    item.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        item.classList.remove('drag-over');
+
+                        if (draggedItem && draggedItem !== item) {
+                            const navListChildren = Array.from(navList.children);
+                            const draggedIndex = navListChildren.indexOf(draggedItem);
+                            const targetIndex = navListChildren.indexOf(item);
+
+                            if (draggedIndex < targetIndex) {
+                                navList.insertBefore(draggedItem, item.nextSibling);
+                            } else {
+                                navList.insertBefore(draggedItem, item);
+                            }
+                            saveNavOrder(); // Guardar el nuevo orden
+                        }
+                    });
+
+                    item.addEventListener('dragend', () => {
+                        draggedItem.classList.remove('dragging');
+                        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('drag-over'));
+                        draggedItem = null;
+                    });
+                });
+            }
+
+            // Función para mostrar la aplicación seleccionada
+            function showApp(appFileName) {
+                console.log(`[showApp] Intentando mostrar la aplicación: ${appFileName}`);
+
+                const currentActiveIframe = document.querySelector('.app-iframe.active-iframe');
+                if (currentActiveIframe) {
+                    console.log(`[showApp] Guardando posición de desplazamiento para: ${currentActiveIframe.id}`);
+                    try {
+                        if (currentActiveIframe.contentWindow && currentActiveIframe.contentWindow.document) {
+                            iframeScrollPositions[currentActiveIframe.id] = currentActiveIframe.contentWindow.document.documentElement.scrollTop || currentActiveIframe.contentWindow.document.body.scrollTop;
+                            console.log(`[showApp] Posición guardada para ${currentActiveIframe.id}: ${iframeScrollPositions[currentActiveIframe.id]}`);
+                        } else {
+                            console.warn(`[showApp] Ventana de contenido o documento no accesible para ${currentActiveIframe.id} al guardar.`);
+                        }
+                    } catch (e) {
+                        console.error(`[showApp] Error al guardar la posición de desplazamiento para ${currentActiveIframe.id}:`, e);
+                    }
+                    currentActiveIframe.classList.remove('active-iframe');
+                } else {
+                    console.log('[showApp] No se encontró ningún iframe activo para guardar la posición de desplazamiento.');
+                }
+
+                // Ocultar todos los iframes (redundante pero seguro, asegura que solo uno esté visible)
+                document.querySelectorAll('.app-iframe').forEach(iframe => {
+                    iframe.classList.remove('active-iframe');
+                });
+
+                const iframeId = appToIframeIdMap[appFileName];
+                const targetIframe = document.getElementById(iframeId);
+
+                if (targetIframe) {
+                    console.log(`[showApp] Encontrado iframe de destino: ${iframeId}. Añadiendo la clase active-iframe.`);
+
+                    // Define la función de restauración de desplazamiento con un retraso
+                    const restoreScrollWithDelay = () => {
+                        // Ajustar altura real del iframe y empezar a vigilar cambios de contenido
+                        resizeIframeToContent(targetIframe);
+                        watchIframeContent(targetIframe);
+
+                        if (iframeScrollPositions[targetIframe.id] !== undefined) {
+                            const scrollPos = iframeScrollPositions[targetIframe.id];
+                            console.log(`[restoreScrollWithDelay] Intentando restaurar desplazamiento para ${targetIframe.id} a: ${scrollPos}`);
+                            setTimeout(() => {
+                                try {
+                                    if (targetIframe.contentWindow && targetIframe.contentWindow.document) {
+                                        resizeIframeToContent(targetIframe); // recalcular por si el contenido cambió
+                                        targetIframe.contentWindow.document.documentElement.scrollTop = scrollPos;
+                                        targetIframe.contentWindow.document.body.scrollTop = scrollPos; // Para compatibilidad
+                                        console.log(`[restoreScrollWithDelay] Desplazamiento RESTAURADO para ${targetIframe.id} a: ${scrollPos}`);
+                                        // Verificar la posición actual después de intentar restaurar
+                                        const currentScroll = targetIframe.contentWindow.document.documentElement.scrollTop || targetIframe.contentWindow.document.body.scrollTop;
+                                        console.log(`[restoreScrollWithDelay] Posición actual de ${targetIframe.id} después de la restauración: ${currentScroll}`);
+                                        if (currentScroll !== scrollPos) {
+                                            console.warn(`[restoreScrollWithDelay] La posición de desplazamiento para ${targetIframe.id} no se restauró exactamente. Esperado: ${scrollPos}, Actual: ${currentScroll}`);
+                                        }
+                                    } else {
+                                        console.warn(`[restoreScrollWithDelay] Ventana de contenido o documento no accesible para ${targetIframe.id} durante la restauración.`);
+                                    }
+                                } catch (e) {
+                                    console.error(`[restoreScrollWithDelay] Error al restaurar la posición de desplazamiento para ${targetIframe.id}:`, e);
+                                }
+                            }, 300); // Aumentado el retraso a 300ms
+                        } else {
+                            console.log(`[restoreScrollWithDelay] No hay posición de desplazamiento guardada para ${targetIframe.id}.`);
+                        }
+                        // Eliminar el listener onload después de que se dispare para evitar múltiples llamadas
+                        targetIframe.removeEventListener('load', restoreScrollWithDelay);
+                    };
+
+                    // Añadir el event listener para 'load'
+                    targetIframe.addEventListener('load', restoreScrollWithDelay);
+
+                    // Hacer el iframe visible
+                    targetIframe.classList.add('active-iframe');
+
+                    // Si el contenido del iframe ya está cargado (por ejemplo, desde la caché), el evento 'load' podría no dispararse de nuevo.
+                    // En este caso, disparamos manualmente la restauración del desplazamiento.
+                    // Verificamos readyState DESPUÉS de establecer el listener 'load' y hacerlo visible.
+                    // (Envuelto en try/catch: bajo file://, cada iframe tiene origen "null" y
+                    // acceder a contentWindow.document puede lanzar SecurityError no capturado,
+                    // lo cual cortaría la ejecución de cualquier código que llame a showApp().)
+                    try {
+                        if (targetIframe.contentWindow && targetIframe.contentWindow.document && targetIframe.contentWindow.document.readyState === 'complete') {
+                            console.log(`[showApp] ${targetIframe.id} ya estaba cargado o cargó muy rápido. Ejecutando restauración de scroll manualmente.`);
+                            restoreScrollWithDelay(); // Disparar manualmente la restauración con retraso
+                        }
+                    } catch (e) {
+                        console.warn(`[showApp] No se pudo verificar readyState de ${targetIframe.id} (probablemente file://):`, e);
+                    }
+
+                } else {
+                    console.error(`[showApp] ¡Error crítico! Iframe no encontrado para: ${appFileName}.`);
+                }
+            }
+
+            // Función para alternar el estado colapsado del sidebar
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                // Cambia el icono del botón
+                const icon = sidebarToggle.querySelector('i');
+                if (sidebar.classList.contains('collapsed')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-arrow-right'); // Icono para expandir
+                } else {
+                    icon.classList.remove('fa-arrow-right');
+                    icon.classList.add('fa-bars'); // Icono para colapsar
+                }
+                // El ancho del main-content cambió -> puede alterar el layout responsive del iframe activo
+                setTimeout(() => {
+                    const active = document.querySelector('.app-iframe.active-iframe');
+                    if (active) resizeIframeToContent(active);
+                }, 350); // después de la transición CSS del sidebar
+            });
+
+            // Recalcular altura del iframe activo cuando cambia el tamaño de la ventana
+            window.addEventListener('resize', () => {
+                const active = document.querySelector('.app-iframe.active-iframe');
+                if (active) resizeIframeToContent(active);
+            });
+
+            // Manejador de clics para los elementos de navegación
+            // Se reasignan los listeners cada vez que se actualiza navItems (después de cargar el orden)
+            // o se puede hacer que esta función sea llamada en loadNavOrder
+            function addClickListeners() {
+                navItems.forEach(item => {
+                    // Remover listener existente para evitar duplicados si se llama varias veces
+                    item.removeEventListener('click', handleNavItemClick);
+                    item.addEventListener('click', handleNavItemClick);
+                });
+            }
+
+            function handleNavItemClick() {
+                // Remueve la clase 'active' de todos los elementos de navegación
+                navItems.forEach(nav => nav.classList.remove('active'));
+                // Añade la clase 'active' al elemento clicado
+                this.classList.add('active');
+
+                // Muestra la aplicación correspondiente en el iframe
+                const appFile = this.dataset.app;
+                showApp(appFile);
+            }
+
+            // Cargar el orden de navegación guardado al inicio
+            loadNavOrder();
+            // Añadir los listeners de clic después de cargar el orden
+            addClickListeners();
+
+            // ============================================================
+            // Puente de navegación cross-app (postMessage)
+            // Permite que una app hija (ej. Cybersecurity Dictionary) pida
+            // a SPEED que cambie a otra app (ej. OSINT o MITRE) y le
+            // pase un valor a buscar automáticamente (puerto, technique id, etc).
+            // ============================================================
+            window.addEventListener('message', (event) => {
+                const data = event.data;
+                if (!data) return;
+
+                // Investigation trail: cualquier app hija puede mandar esto,
+                // independiente de si además navega a otra app o no.
+                if (data.action === 'addToTrail') {
+                    addToTrail(data.data, data.section, data.source);
+                    return;
+                }
+
+                // Puente de lookup de puertos: Dictionary pide el dato real a OSINT
+                // (que siempre está cargado en memoria) en vez de mandar un texto genérico.
+                // El resultado se atribuye a la sección OSINT (es su base de datos la
+                // que responde), no a Dictionary (que solo hizo la pregunta).
+                if (data.action === 'lookupPort') {
+                    const osintIframe = document.getElementById('iframe-OSINT');
+                    pendingPortLookups[data.requestId] = { port: data.port };
+                    try {
+                        osintIframe.contentWindow.postMessage({
+                            action: 'resolvePort',
+                            requestId: data.requestId,
+                            port: data.port
+                        }, '*');
+                    } catch (err) {
+                        console.warn('[lookupPort] No se pudo reenviar a OSINT:', err);
+                    }
+                    // Fallback si OSINT no responde a tiempo (ej. iframe aún cargando).
+                    // Siempre incluye el puerto en el texto para que la tarjeta nunca
+                    // se vea vacía/en blanco.
+                    setTimeout(() => {
+                        const pending = pendingPortLookups[data.requestId];
+                        if (pending) {
+                            delete pendingPortLookups[data.requestId];
+                            addToTrail(`${pending.port}: No port info available`, 'osint', { app: 'OSINT.html', type: 'port', value: pending.port });
+                        }
+                    }, 4000);
+                    return;
+                }
+
+                if (data.action === 'portResolved') {
+                    const pending = pendingPortLookups[data.requestId];
+                    if (pending) {
+                        delete pendingPortLookups[data.requestId];
+                        const desc = (data.description && String(data.description).trim())
+                            ? data.description
+                            : 'No port info available';
+                        addToTrail(`${pending.port}: ${desc}`, 'osint', { app: 'OSINT.html', type: 'port', value: pending.port });
+                    }
+                    return;
+                }
+
+                // Puente de lookup de técnicas MITRE: Dictionary pide el dato
+                // real a MITRE (que tiene su propia base de tácticas/técnicas)
+                // en vez de mandar solo el ID.
+                if (data.action === 'lookupMitre') {
+                    const mitreIframe = document.getElementById('iframe-MITRE ATTACK');
+                    pendingMitreLookups[data.requestId] = { mitreId: data.mitreId };
+                    try {
+                        mitreIframe.contentWindow.postMessage({
+                            action: 'resolveMitre',
+                            requestId: data.requestId,
+                            mitreId: data.mitreId,
+                            kind: data.kind
+                        }, '*');
+                    } catch (err) {
+                        console.warn('[lookupMitre] No se pudo reenviar a MITRE:', err);
+                    }
+                    setTimeout(() => {
+                        const pending = pendingMitreLookups[data.requestId];
+                        if (pending) {
+                            delete pendingMitreLookups[data.requestId];
+                            addToTrail(`${pending.mitreId}: No MITRE info available`, 'mitre', { app: 'MITRE ATTACK.html', type: 'technique', value: pending.mitreId });
+                        }
+                    }, 4000);
+                    return;
+                }
+
+                if (data.action === 'mitreResolved') {
+                    const pending = pendingMitreLookups[data.requestId];
+                    if (pending) {
+                        delete pendingMitreLookups[data.requestId];
+                        const desc = (data.description && String(data.description).trim())
+                            ? data.description
+                            : 'No MITRE info available';
+                        const label = data.name ? `${pending.mitreId} — ${data.name}` : pending.mitreId;
+                        addToTrail(`${label}: ${desc}`, 'mitre', { app: 'MITRE ATTACK.html', type: 'technique', value: pending.mitreId });
+                    }
+                    return;
+                }
+
+                if (data.action !== 'navigate' || !data.app) return;
+
+                // Si el usuario apagó "Auto-abrir Templates al copiar", se ignora
+                // específicamente la navegación hacia Launcher_Templates.html
+                // (el "Copy for report" de las apps). El resto de navegaciones
+                // cross-app (ej. click en un puerto que lleva a OSINT) sigue igual.
+                if (data.app === 'Launcher_Templates.html' && !autoSendToTemplates) {
+                    return;
+                }
+
+                const iframeId = appToIframeIdMap[data.app];
+                if (!iframeId) {
+                    console.warn(`[cross-app-nav] App destino desconocida: ${data.app}`);
+                    return;
+                }
+
+                // Cambiar visualmente el nav-item activo, si existe uno para esa app
+                const targetNavItem = document.querySelector(`.nav-item[data-app="${data.app}"]`);
+                if (targetNavItem) {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    targetNavItem.classList.add('active');
+                }
+
+                // Reenviar el payload al iframe destino ANTES de cambiar de app.
+                // Importante: esto va antes de showApp() a propósito. Bajo file://
+                // (abriendo el HTML con doble-click en vez de servirlo por HTTP),
+                // showApp() puede lanzar una excepción no capturada al intentar leer
+                // contentWindow.document de un iframe cross-origin (origen "null").
+                // Si reenviáramos el mensaje DESPUÉS de showApp(), esa excepción
+                // cortaría la ejecución antes de llegar a esta línea.
+                const targetIframe = document.getElementById(iframeId);
+                if (targetIframe && targetIframe.contentWindow) {
+                    targetIframe.contentWindow.postMessage(data, '*');
+                }
+
+                // Mostrar la app destino (esto ya maneja show/hide, resize, scroll)
+                showApp(data.app);
+            });
+
+            // ============================================================
+            // Puente de vinculación de archivo (File System Access API)
+            // Las apps hijas (ej. Notes.html) corren en iframes con origen
+            // "null" bajo file://, y showOpenFilePicker() lanza SecurityError
+            // si se llama dentro de un iframe cross-origin.
+            //
+            // IMPORTANTE: un FileSystemFileHandle NO se puede transferir de
+            // forma confiable por postMessage a un iframe de otro origen (el
+            // navegador no clona capacidades de escritura de archivo entre
+            // orígenes distintos — por eso el intento anterior se quedaba
+            // esperando para siempre). La solución: SPEED se queda con el
+            // handle y nunca lo suelta. La app hija solo pide operaciones
+            // ("leer texto actual", "escribir este texto"), que sí viajan
+            // como datos planos (strings) por postMessage.
+            // ============================================================
+            const linkedFileHandles = new Map(); // event.source (Window) -> FileSystemFileHandle
+
+            window.addEventListener('message', async (event) => {
+                const data = event.data;
+                if (!data || !data.action || !event.source) return;
+                const requestId = data.requestId;
+
+                if (data.action === 'requestFilePicker') {
+                    try {
+                        const [handle] = await window.showOpenFilePicker({
+                            id: 'soc-notes-root-file',
+                            types: [{ description: 'HTML', accept: { 'text/html': ['.html'] } }]
+                        });
+                        const perm = await handle.requestPermission({ mode: 'readwrite' });
+                        if (perm !== 'granted') {
+                            event.source.postMessage({ action: 'filePickerError', requestId, message: 'Permiso denegado' }, '*');
+                            return;
+                        }
+                        const file = await handle.getFile();
+                        const text = await file.text();
+                        linkedFileHandles.set(event.source, handle);
+                        event.source.postMessage({ action: 'filePickerResult', requestId, fileName: file.name, text }, '*');
+                    } catch (err) {
+                        const message = (err && err.name === 'AbortError') ? 'AbortError' : ('No se pudo vincular el archivo' + (err && err.message ? (': ' + err.message) : ''));
+                        event.source.postMessage({ action: 'filePickerError', requestId, message }, '*');
+                    }
+                    return;
+                }
+
+                if (data.action === 'readLinkedFile') {
+                    const handle = linkedFileHandles.get(event.source);
+                    if (!handle) {
+                        event.source.postMessage({ action: 'readLinkedFileError', requestId, message: 'No hay archivo vinculado con la app madre' }, '*');
+                        return;
+                    }
+                    try {
+                        const file = await handle.getFile();
+                        const text = await file.text();
+                        event.source.postMessage({ action: 'readLinkedFileResult', requestId, text }, '*');
+                    } catch (err) {
+                        event.source.postMessage({ action: 'readLinkedFileError', requestId, message: err.message }, '*');
+                    }
+                    return;
+                }
+
+                if (data.action === 'writeLinkedFile') {
+                    const handle = linkedFileHandles.get(event.source);
+                    if (!handle) {
+                        event.source.postMessage({ action: 'writeLinkedFileError', requestId, message: 'No hay archivo vinculado con la app madre' }, '*');
+                        return;
+                    }
+                    try {
+                        const writable = await handle.createWritable();
+                        await writable.write(data.content);
+                        await writable.close();
+                        event.source.postMessage({ action: 'writeLinkedFileResult', requestId }, '*');
+                    } catch (err) {
+                        event.source.postMessage({ action: 'writeLinkedFileError', requestId, message: err.message }, '*');
+                    }
+                    return;
+                }
+
+                if (data.action === 'unlinkFile') {
+                    linkedFileHandles.delete(event.source);
+                    return;
+                }
+            });
+
+
+            // Establecer la aplicación inicial activa: siempre la primera del sidebar (según el orden actual)
+            const firstNavItem = navList.querySelector('.nav-item');
+            if (firstNavItem) {
+                // Marcar como activo el primer elemento visible y cargar su app
+                navItems.forEach(nav => nav.classList.remove('active'));
+                firstNavItem.classList.add('active');
+                const firstAppFile = firstNavItem.dataset.app;
+                showApp(firstAppFile);
+            } else {
+                console.error('No se encontró ninguna app en el menú de navegación para iniciar.');
+            }
+        });
+    </script>
+
+    <script>
+    /* Tema fijo: Noche (sin selector, controlado por app madre) */
+    document.documentElement.setAttribute('data-theme', 'dark');
+    </script>
+
+</body>
+</html>
