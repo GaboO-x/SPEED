@@ -19,25 +19,37 @@
   }
 
   .tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-family: monospace;
-    font-size: 20px;
-    padding: 2px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 4px 12px;
     border: 1px solid #333;
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
-    color: #ec640a;
-    background: transparent;
+    color: #999;
+    background: #1e1e1e;
     transition: all 0.15s;
     line-height: 1;
   }
 
-  .tab:hover { color: #aaaaaa; border-color: #555; }
+  .tab:hover { color: #ccc; border-color: #555; }
+
+  .tab .check {
+    display: none;
+    font-size: 12px;
+  }
 
   .tab.active {
     color: #7fe20e;
-    border-color: #555;
-    background: #2a2a2a;
+    border-color: #3d5c1a;
+    background: #1c2a12;
   }
+
+  .tab.active .check { display: inline; }
 
   iframe {
     flex: 1;
@@ -52,20 +64,30 @@
 <body>
 
 <div id="tab-bar">
-  <button class="tab" active onclick="switchTab('mdr')">MDR</button>
-  <button class="tab" onclick="switchTab('soc')">SOC</button>
+  <button class="tab" onclick="switchTab('mdr')"><span class="check">✓</span>MDR</button>
+  <button class="tab" onclick="switchTab('soc')"><span class="check">✓</span>Triage</button>
 </div>
 
 <iframe id="frame-mdr" class="active" src="Template_MDR.html"></iframe>
 <iframe id="frame-soc" src="Template_L2.html"></iframe>
 
 <script>
-  function switchTab(name) {
+  function switchTab(name, skipSave) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
     document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
     document.getElementById(`frame-${name}`).classList.add('active');
+    if (!skipSave) {
+      try { localStorage.setItem('launcher-active-tab', name); } catch (e) {}
+    }
   }
+
+  // Restaurar la pestaña activa desde localStorage al cargar
+  (function initTab() {
+    let saved = null;
+    try { saved = localStorage.getItem('launcher-active-tab'); } catch (e) {}
+    switchTab(saved === 'soc' ? 'soc' : 'mdr', true);
+  })();
 
   // ============================================================
   // Puente de navegación cross-app (postMessage) recibido desde SPEED.html
