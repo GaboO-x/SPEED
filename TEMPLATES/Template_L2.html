@@ -3781,7 +3781,12 @@ Association Reason:
 
 Hence associating with this security incident.
 Thanks & regards,
-IBM SOC`;
+IBM SOC
+
+------------------------
+
+We assign this alert to the existing ticket XXXX due to similar
+Same rule/ event / XXX`;
 
         associateNotesBtn.addEventListener('click', () => {
             const ASSOCIATE_NOTES_STORAGE_KEY = 'associate_notes_template_v1';
@@ -4076,11 +4081,8 @@ function copyPreviousAssembled() {
                 sectionText = '';
 
             } else if (sectionConfig.id === 'incident-link') {
-                // Gated above by its "Usado" checkbox; if we got here it's checked.
-                const linkValue = (document.getElementById('incident-link')?.value || '').trim();
-                if (linkValue !== '') {
-                    sectionText = 'Incident Link:\n' + linkValue;
-                }
+                // EXCLUDE Incident Link entirely from Copy Previous
+                sectionText = '';
 
             } else {
                 // Generic handler for any other textarea-only sections
