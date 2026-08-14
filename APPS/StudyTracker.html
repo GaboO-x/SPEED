@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Tracker</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary-color:#69FF8A;
+  --secondary-color:#9aa0a6;
+  --text-color:#e6e6e6;
+  --bg-color-main:#2e3440;
+  --card-bg:#151a21;
+  --border-color:#4e5c71;
+  --shadow-color:rgba(0,0,0,0.55);
+  --font-family:'Inter',sans-serif;
+  --border-radius:8px;
+  --danger:#f87171;
+  --warn:#f5a623;
+}
+*,*::before,*::after{box-sizing:border-box;}
+html,body{overflow-x:hidden;}
+body{
+  font-family:var(--font-family);
+  background:var(--bg-color-main);
+  color:var(--text-color);
+  margin:0;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
+}
+h1{
+  color:var(--primary-color);
+  font-size:1.75rem;
+  font-weight:700;
+  margin-bottom:4px;
+  text-align:center;
+}
+.subtitle{
+  color:var(--secondary-color);
+  font-size:0.85rem;
+  margin-bottom:20px;
+  text-align:center;
+}
+.wrap{width:100%;max-width:1100px;}
+
+.title-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;}
+.title-row h1{margin:0;}
+.notif-bell{
+  background:none;border:none;cursor:pointer;font-size:1.3rem;
+  color:var(--secondary-color);transition:color .2s;
+  display:flex;align-items:center;justify-content:center;
+  width:32px;height:32px;
+}
+.notif-bell.active{color:var(--primary-color);}
+.notif-bell.shake{animation:bell-shake 0.5s ease;}
+@keyframes bell-shake{
+  0%,100%{transform:rotate(0);}
+  15%{transform:rotate(14deg);}
+  30%{transform:rotate(-12deg);}
+  45%{transform:rotate(9deg);}
+  60%{transform:rotate(-7deg);}
+  75%{transform:rotate(4deg);}
+}
+
+/* ---- add form ---- */
+.card{
+  background:var(--card-bg);
+  border:1px solid var(--border-color);
+  border-radius:var(--border-radius);
+  padding:16px;
+  margin-bottom:20px;
+  box-shadow:0 2px 6px var(--shadow-color);
+}
+.card h2{
+  color:var(--primary-color);
+  font-size:1rem;
+  margin:0 0 12px 0;
+}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
+  align-items:end;
+}
+.field label{
+  display:block;
+  font-size:0.72rem;
+  color:var(--secondary-color);
+  margin-bottom:4px;
+}
+.field input,.field select{
+  width:100%;
+  background:#0d1117;
+  border:1px solid var(--border-color);
+  color:var(--text-color);
+  border-radius:6px;
+  padding:8px;
+  font-size:0.85rem;
+  font-family:var(--font-family);
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--primary-color);}
+.window-toggle{display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--secondary-color);margin-top:6px;}
+.window-fields{display:none;gap:10px;margin-top:8px;}
+.window-fields.active{display:grid;grid-template-columns:1fr 1fr;}
+.btn-primary{
+  background:var(--primary-color);
+  color:#0d1117;
+  border:none;
+  border-radius:6px;
+  padding:9px 16px;
+  font-weight:600;
+  font-size:0.85rem;
+  cursor:pointer;
+  height:38px;
+}
+.btn-primary:hover{opacity:0.9;}
+
+/* ---- section headers ---- */
+.section-title{
+  color:var(--secondary-color);
+  font-size:0.78rem;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  margin:22px 0 10px 2px;
+  border-bottom:1px solid var(--border-color);
+  padding-bottom:6px;
+}
+
+/* ---- item cards ---- */
+.items-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:14px;
+}
+.item-card{
+  background:var(--card-bg);
+  border:1px solid var(--border-color);
+  border-radius:var(--border-radius);
+  padding:14px;
+  position:relative;
+  transition:border-color .15s;
+}
+.item-card.completed{border-color:var(--primary-color);}
+.item-card.editing{border-color:var(--primary-color);}
+.item-card .del-btn{
+  position:absolute;top:8px;right:8px;
+  background:none;border:none;color:var(--secondary-color);
+  cursor:pointer;font-size:0.85rem;
+}
+.item-card .del-btn:hover{color:var(--danger);}
+.item-card .edit-btn{
+  position:absolute;top:8px;right:32px;
+  background:none;border:none;color:var(--secondary-color);
+  cursor:pointer;font-size:0.85rem;
+}
+.item-card .edit-btn:hover{color:var(--primary-color);}
+.item-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding-right:46px;}
+.item-name{font-weight:600;font-size:0.95rem;color:var(--text-color);}
+.link-icon-btn{
+  color:var(--primary-color);
+  font-size:0.75rem;
+  border:1px solid var(--border-color);
+  border-radius:50%;
+  width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;
+  flex-shrink:0;
+}
+.link-icon-btn:hover{border-color:var(--primary-color);background:rgba(105,255,138,0.12);}
+.window-badge{
+  font-size:0.68rem;color:var(--secondary-color);
+  display:flex;align-items:center;gap:4px;margin-bottom:8px;
+}
+.progress-row{font-size:0.78rem;color:var(--secondary-color);margin-bottom:4px;display:flex;justify-content:space-between;}
+.progress-bar-bg{
+  width:100%;height:6px;border-radius:4px;background:#0d1117;
+  border:1px solid var(--border-color);overflow:hidden;margin-bottom:8px;
+}
+.progress-bar-fill{height:100%;background:var(--primary-color);transition:width .2s;}
+.stats-row{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:0.75rem;margin-bottom:8px;flex-wrap:wrap;gap:6px;
+}
+.streak-row{display:flex;align-items:center;gap:5px;color:var(--warn);}
+.timer-row{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  background:#0d1117;border:1px solid var(--border-color);
+  border-radius:6px;padding:8px;margin-bottom:8px;
+}
+.timer-display{
+  font-family:monospace;font-size:1.1rem;color:var(--primary-color);
+  min-width:58px;text-align:center;cursor:pointer;
+}
+.timer-display:hover{text-decoration:underline;}
+.timer-display.locked{cursor:default;}
+.timer-display.locked:hover{text-decoration:none;}
+.timer-edit-input{
+  width:55px;background:#0d1117;border:1px solid var(--primary-color);
+  color:var(--primary-color);border-radius:4px;padding:2px 4px;
+  font-family:monospace;font-size:1rem;text-align:center;
+}
+.manual-group{
+  display:flex;align-items:center;gap:6px;
+  margin-left:auto;padding-left:8px;border-left:1px solid var(--border-color);
+}
+.manual-input-inline{
+  width:42px;background:transparent;border:1px solid var(--border-color);
+  color:var(--text-color);border-radius:4px;padding:4px;font-size:0.78rem;text-align:center;
+}
+.icon-btn{
+  background:none;border:1px solid var(--border-color);
+  color:var(--primary-color);border-radius:50%;
+  width:30px;height:30px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:0.8rem;
+}
+.icon-btn:hover{border-color:var(--primary-color);}
+.icon-btn.reset{color:var(--secondary-color);}
+.icon-btn.add-btn{
+  width:22px;height:22px;font-size:0.65rem;
+  background:none;color:var(--secondary-color);border-color:var(--border-color);
+}
+.icon-btn.add-btn:hover{border-color:var(--primary-color);color:var(--primary-color);background:rgba(105,255,138,0.1);}
+.rounds-row{
+  display:flex;align-items:center;gap:4px;
+  color:var(--warn);flex-wrap:wrap;
+}
+.toast{
+  position:fixed;bottom:20px;right:20px;
+  background:var(--card-bg);border:1px solid var(--primary-color);
+  color:var(--text-color);padding:12px 16px;border-radius:8px;
+  font-size:0.85rem;box-shadow:0 4px 12px var(--shadow-color);
+  opacity:0;transform:translateY(10px);
+  transition:opacity .3s, transform .3s;
+  z-index:999;
+  max-width:280px;
+}
+.toast.show{opacity:1;transform:translateY(0);}
+.empty-hint{color:var(--secondary-color);font-size:0.82rem;padding:20px;text-align:center;}
+
+/* ---- edit panel ---- */
+.edit-panel .field{margin-bottom:8px;}
+.edit-actions{display:flex;gap:8px;margin-top:10px;}
+.btn-secondary{
+  background:none;color:var(--secondary-color);border:1px solid var(--border-color);
+  border-radius:6px;padding:9px 16px;font-weight:600;font-size:0.85rem;cursor:pointer;
+}
+.btn-secondary:hover{border-color:var(--secondary-color);color:var(--text-color);}
+
+/* ---- weekly summary ---- */
+.summary-row{
+  display:flex;align-items:center;gap:10px;padding:8px 0;
+  border-bottom:1px solid var(--border-color);font-size:0.82rem;
+}
+.summary-row:last-child{border-bottom:none;}
+.summary-name{flex:0 0 160px;color:var(--text-color);}
+.summary-checks{display:flex;gap:6px;flex:1;justify-content:flex-end;}
+.day-check{
+  width:22px;height:22px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;border:1px solid var(--border-color);
+}
+.day-check.ok{background:rgba(105,255,138,0.15);color:var(--primary-color);border-color:var(--primary-color);}
+.day-check.fail{background:transparent;color:var(--secondary-color);}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title-row">
+    <h1>Study Tracker</h1>
+    <button class="notif-bell" id="notifBell" title="Notificaciones"><i class="fa-solid fa-bell"></i></button>
+  </div>
+  <div class="subtitle"></div>
+
+  <div class="card">
+    <h2><i class="fa-solid fa-plus"></i> Agregar elemento de estudio</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" id="fName" placeholder="Ej. LDAP / SAMR enum">
+      </div>
+      <div class="field">
+        <label>Link (opcional)</label>
+        <input type="url" id="fLink" placeholder="https://...">
+      </div>
+      <div class="field">
+        <label>Meta diaria (min)</label>
+        <input type="number" id="fGoal" min="1" value="30">
+      </div>
+      <div class="field">
+        <button class="btn-primary" id="addBtn" style="width:100%;">Agregar</button>
+      </div>
+    </div>
+    <label class="window-toggle">
+      <input type="checkbox" id="fWindowToggle"> Asignar franja horaria (opcional)
+    </label>
+    <div class="window-fields" id="windowFields">
+      <div class="field"><label>Desde</label><input type="time" id="fWinStart" value="09:00"></div>
+      <div class="field"><label>Hasta</label><input type="time" id="fWinEnd" value="11:00"></div>
+    </div>
+  </div>
+
+  <div class="section-title">Con franja horaria</div>
+  <div class="items-grid" id="scheduledGrid"></div>
+
+  <div class="section-title">Sin horario fijo</div>
+  <div class="items-grid" id="unscheduledGrid"></div>
+
+  <div class="section-title">Resumen semanal (últimos 7 días)</div>
+  <div class="card" id="summaryBox"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'studyTrackerData';
+let items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+const runningTimers = {}; // id -> {intervalRef, remainingSec, totalSec, sessionMin, running}
+const customSessionMinutes = {}; // id -> minutos elegidos manualmente para la próxima sesión (no persiste)
+let editingId = null; // id del item que está en modo edición (solo uno a la vez)
+
+function escapeAttr(str){
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function yesterdayStr(){ const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); }
+function nowHHMM(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function uid(){ return 'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,7); }
+
+function getCheckin(item, date){
+  let c = item.checkins.find(c=>c.date===date);
+  if(!c){ c = {date, minutesReal:0, completed:false}; item.checkins.push(c); }
+  return c;
+}
+
+function updateStreak(item){
+  // recorre checkins ordenados y cuenta racha consecutiva terminando hoy o ayer
+  const map = {};
+  item.checkins.forEach(c=>map[c.date]=c.completed);
+  let streak = 0;
+  let cursor = new Date();
+  // si hoy no está completado todavía, la racha se evalúa hasta ayer
+  if(!map[todayStr()]) cursor.setDate(cursor.getDate()-1);
+  while(true){
+    const ds = cursor.toISOString().slice(0,10);
+    if(map[ds]){ streak++; cursor.setDate(cursor.getDate()-1); }
+    else break;
+  }
+  item.streak = streak;
+}
+
+function checkAutoComplete(item, checkin){
+  checkin.completed = Math.floor(checkin.minutesReal / item.dailyGoalMinutes) >= 1;
+  updateStreak(item);
+}
+
+function addMinutes(itemId, minutes){
+  const item = items.find(i=>i.id===itemId);
+  if(!item) return;
+  const c = getCheckin(item, todayStr());
+  c.minutesReal += minutes;
+  checkAutoComplete(item, c);
+
+  // si hay un timer activo (corriendo o pausado) para este item, se recorta
+  // por los minutos recién sumados: el tiempo restante y lo que le queda
+  // por acreditar al terminar bajan en la misma proporción.
+  const st = runningTimers[itemId];
+  if(st){
+    st.sessionMin -= minutes;
+    st.remainingSec -= minutes*60;
+    st.totalSec -= minutes*60;
+    if(st.remainingSec <= 0 || st.sessionMin <= 0){
+      clearInterval(st.intervalRef);
+      delete runningTimers[itemId];
+    }
+  }
+
+  save();
+  render();
+}
+
+function fireIcons(n){
+  if(!n || n<=0) return '';
+  if(n<=6) return '<i class="fa-solid fa-fire"></i>'.repeat(n);
+  return '<i class="fa-solid fa-fire"></i> x'+n;
+}
+
+function showToast(msg){
+  const t = document.createElement('div');
+  t.className='toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{
+    t.classList.remove('show');
+    setTimeout(()=>t.remove(),300);
+  },4000);
+}
+
+function playAlertSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if(ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    [0, 0.15].forEach((delay, i)=>{
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = i===0 ? 880 : 1046.5; // dos tonos, tipo "ding-dong"
+      gain.gain.setValueAtTime(0.0001, now+delay);
+      gain.gain.exponentialRampToValueAtTime(0.25, now+delay+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now+delay+0.3);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now+delay);
+      osc.stop(now+delay+0.35);
+    });
+  } catch(e){
+    console.warn('No se pudo reproducir el sonido de alerta:', e);
+  }
+}
+
+function deleteItem(id){
+  if(!confirm('¿Eliminar este elemento de estudio?')) return;
+  items = items.filter(i=>i.id!==id);
+  save();
+  render();
+}
+
+function toggleEdit(itemId){
+  editingId = (editingId===itemId) ? null : itemId;
+  render();
+}
+
+function cancelEdit(){
+  editingId = null;
+  render();
+}
+
+function saveEdit(itemId){
+  const item = items.find(i=>i.id===itemId);
+  if(!item) return;
+  const name = document.getElementById('editName_'+itemId).value.trim();
+  if(!name){ alert('El nombre no puede quedar vacío.'); return; }
+  const link = document.getElementById('editLink_'+itemId).value.trim();
+  const goal = parseInt(document.getElementById('editGoal_'+itemId).value) || item.dailyGoalMinutes;
+  const hasWindow = document.getElementById('editWindowToggle_'+itemId).checked;
+  item.name = name;
+  item.link = link || null;
+  item.dailyGoalMinutes = goal;
+  item.window = hasWindow ? {
+    start: document.getElementById('editWinStart_'+itemId).value,
+    end: document.getElementById('editWinEnd_'+itemId).value
+  } : null;
+  editingId = null;
+  save();
+  render();
+}
+
+function fmtTime(sec){
+  const m = Math.floor(sec/60), s = sec%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function startTimer(itemId){
+  const item = items.find(i=>i.id===itemId);
+  if(!item) return;
+  let st = runningTimers[itemId];
+  if(!st){
+    const c = getCheckin(item, todayStr());
+    const remainderMin = c.minutesReal % item.dailyGoalMinutes;
+    const remainingToRound = remainderMin === 0 ? item.dailyGoalMinutes : item.dailyGoalMinutes - remainderMin;
+    const mins = customSessionMinutes[itemId] || remainingToRound;
+    st = { remainingSec: mins*60, totalSec: mins*60, sessionMin: mins, intervalRef:null, running:false };
+    runningTimers[itemId] = st;
+  }
+  if(st.running) return;
+  st.running = true;
+  st.intervalRef = setInterval(()=>{
+    st.remainingSec--;
+    const disp = document.getElementById('timerDisplay_'+itemId);
+    if(disp) disp.textContent = fmtTime(st.remainingSec);
+    const fill = document.getElementById('dailyProgressFill_'+itemId);
+    if(fill){
+      const c = getCheckin(item, todayStr());
+      const remainderMin = c.minutesReal % item.dailyGoalMinutes;
+      const elapsedMin = (st.totalSec - st.remainingSec) / 60;
+      const pct = Math.min(100, Math.round(((remainderMin + elapsedMin) / item.dailyGoalMinutes) * 100));
+      fill.style.width = pct+'%';
+    }
+    if(st.remainingSec<=0){
+      clearInterval(st.intervalRef);
+      const finishedMin = st.sessionMin;
+      delete runningTimers[itemId];
+      delete customSessionMinutes[itemId];
+      showToast('¡Sesión completada! +'+finishedMin+' min sumados a "'+item.name+'"');
+      addMinutes(itemId, finishedMin);
+    }
+  },1000);
+  updatePlayPauseIcon(itemId);
+}
+
+function pauseTimer(itemId){
+  const st = runningTimers[itemId];
+  if(!st) return;
+  clearInterval(st.intervalRef);
+  st.running=false;
+  updatePlayPauseIcon(itemId);
+}
+
+function resetTimer(itemId){
+  const st = runningTimers[itemId];
+  if(st){ clearInterval(st.intervalRef); delete runningTimers[itemId]; }
+  delete customSessionMinutes[itemId];
+  render();
+}
+
+function remainingToRoundFor(item){
+  const c = getCheckin(item, todayStr());
+  const remainderMin = c.minutesReal % item.dailyGoalMinutes;
+  return remainderMin === 0 ? item.dailyGoalMinutes : item.dailyGoalMinutes - remainderMin;
+}
+
+function editTimerDisplay(itemId){
+  const st = runningTimers[itemId];
+  if(st && st.running) return; // no se edita mientras corre, solo detenido/pausado
+  const item = items.find(i=>i.id===itemId);
+  if(!item) return;
+  const span = document.getElementById('timerDisplay_'+itemId);
+  if(!span || span.querySelector('input')) return; // ya está en edición
+
+  const currentMin = st ? Math.ceil(st.remainingSec/60) : (customSessionMinutes[itemId] || remainingToRoundFor(item));
+  span.innerHTML = `<input type="number" min="1" class="timer-edit-input" value="${currentMin}">`;
+  const inp = span.querySelector('input');
+  inp.focus();
+  inp.select();
+
+  function commit(){
+    const val = Math.max(1, parseInt(inp.value) || 1);
+    const stNow = runningTimers[itemId];
+    if(stNow){
+      stNow.sessionMin = val;
+      stNow.remainingSec = val*60;
+      stNow.totalSec = val*60;
+    } else {
+      customSessionMinutes[itemId] = val;
+    }
+    render();
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') inp.blur(); });
+}
+
+function togglePlayPause(itemId){
+  const st = runningTimers[itemId];
+  if(st && st.running) pauseTimer(itemId);
+  else startTimer(itemId);
+}
+
+function updatePlayPauseIcon(itemId){
+  const btn = document.getElementById('playPauseBtn_'+itemId);
+  if(!btn) return;
+  const st = runningTimers[itemId];
+  btn.innerHTML = (st && st.running) ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+}
+
+function renderCard(item){
+  const today = todayStr();
+  const c = getCheckin(item, today);
+  save();
+
+  if(editingId === item.id){
+    return `
+    <div class="item-card editing">
+      <div class="edit-panel">
+        <div class="field"><label>Nombre</label><input type="text" id="editName_${item.id}" value="${escapeAttr(item.name)}"></div>
+        <div class="field"><label>Link (opcional)</label><input type="url" id="editLink_${item.id}" value="${item.link?escapeAttr(item.link):''}"></div>
+        <div class="field"><label>Meta diaria (min)</label><input type="number" min="1" id="editGoal_${item.id}" value="${item.dailyGoalMinutes}"></div>
+        <label class="window-toggle">
+          <input type="checkbox" id="editWindowToggle_${item.id}" ${item.window?'checked':''} onchange="document.getElementById('editWindowFields_${item.id}').classList.toggle('active', this.checked)">
+          Asignar franja horaria
+        </label>
+        <div class="window-fields ${item.window?'active':''}" id="editWindowFields_${item.id}">
+          <div class="field"><label>Desde</label><input type="time" id="editWinStart_${item.id}" value="${item.window?item.window.start:'09:00'}"></div>
+          <div class="field"><label>Hasta</label><input type="time" id="editWinEnd_${item.id}" value="${item.window?item.window.end:'11:00'}"></div>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-primary" onclick="saveEdit('${item.id}')">Guardar</button>
+          <button class="btn-secondary" onclick="cancelEdit()">Cancelar</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  const roundsToday = Math.floor(c.minutesReal / item.dailyGoalMinutes);
+  const remainderMin = c.minutesReal % item.dailyGoalMinutes;
+  const remainingToRound = remainderMin === 0 ? item.dailyGoalMinutes : item.dailyGoalMinutes - remainderMin;
+  const st = runningTimers[item.id];
+
+  let pct;
+  if(st){
+    const elapsedMin = (st.totalSec - st.remainingSec) / 60;
+    pct = Math.min(100, Math.round(((remainderMin + elapsedMin) / item.dailyGoalMinutes) * 100));
+  } else {
+    pct = Math.round((remainderMin / item.dailyGoalMinutes) * 100);
+  }
+  const idleMinutes = customSessionMinutes[item.id] || remainingToRound;
+  const dispSec = st ? st.remainingSec : idleMinutes*60;
+  const isRunning = st && st.running;
+
+  const windowBadge = item.window ?
+    `<div class="window-badge"><i class="fa-solid fa-clock"></i> ${item.window.start} – ${item.window.end}</div>` : '';
+
+  return `
+  <div class="item-card ${c.completed?'completed':''}">
+    <button class="edit-btn" onclick="toggleEdit('${item.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+    <button class="del-btn" onclick="deleteItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
+    <div class="item-head">
+      <span class="item-name">${item.name}</span>
+      ${item.link ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer" class="link-icon-btn" title="${item.link}"><i class="fa-solid fa-link"></i></a>` : ''}
+    </div>
+    ${windowBadge}
+    <div class="progress-row"><span>${c.minutesReal} / ${item.dailyGoalMinutes} min hoy</span><span>${c.completed?'<i class=\"fa-solid fa-check\" style=\"color:var(--primary-color)\"></i> Completo':''}</span></div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="dailyProgressFill_${item.id}" style="width:${pct}%;"></div></div>
+    <div class="timer-row">
+      <button class="icon-btn" id="playPauseBtn_${item.id}" onclick="togglePlayPause('${item.id}')"><i class="fa-solid fa-play"></i></button>
+      <button class="icon-btn reset" onclick="resetTimer('${item.id}')"><i class="fa-solid fa-rotate-left"></i></button>
+      <span class="timer-display ${isRunning?'locked':''}" id="timerDisplay_${item.id}" onclick="editTimerDisplay('${item.id}')" title="${isRunning?'':'Tocá para editar el tiempo'}">${fmtTime(dispSec)}</span>
+      <span class="manual-group">
+        <input type="number" min="1" class="manual-input-inline" id="manualInput_${item.id}" placeholder="min">
+        <button class="icon-btn add-btn" onclick="addManual('${item.id}')" title="Sumar minutos manuales"><i class="fa-solid fa-plus"></i></button>
+      </span>
+    </div>
+    <div class="stats-row">
+      <span class="streak-row"><i class="fa-solid fa-fire"></i> Racha: ${item.streak||0} día(s)</span>
+      <span class="rounds-row">Rondas hoy: ${roundsToday ? fireIcons(roundsToday) : '<span style="color:var(--secondary-color)">0</span>'}</span>
+    </div>
+  </div>`;
+}
+
+function addManual(itemId){
+  const input = document.getElementById('manualInput_'+itemId);
+  const mins = parseInt(input.value);
+  if(!mins || mins<=0) return;
+  addMinutes(itemId, mins);
+}
+
+function renderSummary(){
+  const box = document.getElementById('summaryBox');
+  if(items.length===0){ box.innerHTML = '<div class="empty-hint">Sin elementos todavía.</div>'; return; }
+  const days = [...Array(7)].map((_,i)=>{
+    const d = new Date(); d.setDate(d.getDate()-(6-i));
+    return d.toISOString().slice(0,10);
+  }); // ordenado de más viejo a más nuevo, el último es hoy
+  box.innerHTML = items.map(item=>{
+    const checksHtml = days.map(d=>{
+      const ci = item.checkins.find(c=>c.date===d);
+      const ok = ci && ci.completed;
+      return `<span class="day-check ${ok?'ok':'fail'}" title="${d}"><i class="fa-solid ${ok?'fa-check':'fa-xmark'}"></i></span>`;
+    }).join('');
+    return `<div class="summary-row">
+      <span class="summary-name">${item.name}</span>
+      <div class="summary-checks">${checksHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function render(){
+  const scheduled = items.filter(i=>i.window).sort((a,b)=>a.window.start.localeCompare(b.window.start));
+  const unscheduled = items.filter(i=>!i.window);
+  document.getElementById('scheduledGrid').innerHTML = scheduled.length ?
+    scheduled.map(renderCard).join('') : '<div class="empty-hint">Ningún elemento con franja horaria.</div>';
+  document.getElementById('unscheduledGrid').innerHTML = unscheduled.length ?
+    unscheduled.map(renderCard).join('') : '<div class="empty-hint">Ningún elemento sin horario.</div>';
+  renderSummary();
+  // reponer iconos play/pause si hay timers corriendo
+  Object.keys(runningTimers).forEach(updatePlayPauseIcon);
+}
+
+/* ---- form ---- */
+document.getElementById('fWindowToggle').addEventListener('change', e=>{
+  document.getElementById('windowFields').classList.toggle('active', e.target.checked);
+});
+
+document.getElementById('addBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('fName').value.trim();
+  const link = document.getElementById('fLink').value.trim();
+  const goal = parseInt(document.getElementById('fGoal').value) || 30;
+  const hasWindow = document.getElementById('fWindowToggle').checked;
+  if(!name){ alert('Poné un nombre al elemento.'); return; }
+  const item = {
+    id: uid(),
+    name, link: link || null,
+    dailyGoalMinutes: goal,
+    streak: 0,
+    checkins: [],
+    window: hasWindow ? {
+      start: document.getElementById('fWinStart').value,
+      end: document.getElementById('fWinEnd').value
+    } : null,
+    notified: {} // { date: {start:bool, end:bool} }
+  };
+  items.push(item);
+  save();
+  document.getElementById('fName').value='';
+  document.getElementById('fLink').value='';
+  document.getElementById('fWindowToggle').checked=false;
+  document.getElementById('windowFields').classList.remove('active');
+  render();
+});
+
+/* ---- notifications ---- */
+const notifBell = document.getElementById('notifBell');
+
+function refreshNotifStatus(){
+  if(!('Notification' in window)){
+    notifBell.classList.remove('active');
+    notifBell.title = 'Este navegador no soporta notificaciones';
+    return;
+  }
+  const perm = Notification.permission;
+  if(perm==='granted'){
+    notifBell.classList.add('active');
+    notifBell.title = 'Notificaciones activas';
+  } else if(perm==='denied'){
+    notifBell.classList.remove('active');
+    notifBell.title = 'Notificaciones bloqueadas — habilitalas en la configuración del navegador';
+  } else {
+    notifBell.classList.remove('active');
+    notifBell.title = 'Notificaciones desactivadas — tocá para activarlas';
+  }
+}
+
+notifBell.addEventListener('click', ()=>{
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='default'){
+    Notification.requestPermission().then(refreshNotifStatus);
+  } else if(Notification.permission==='denied'){
+    alert('Las notificaciones están bloqueadas para este sitio. Habilitalas desde la configuración del navegador para activarlas.');
+  }
+  // si ya están 'granted', el navegador es quien controla el permiso; no hay
+  // acción posible desde acá más que informar el estado actual.
+});
+refreshNotifStatus();
+
+// escucha cambios de permiso en tiempo real (ej. si lo activás/desactivás
+// desde la configuración del sitio en Chrome en vez de tocar la campana),
+// para no depender de recargar la página.
+if(navigator.permissions && navigator.permissions.query){
+  navigator.permissions.query({name:'notifications'}).then(status=>{
+    status.onchange = refreshNotifStatus;
+  }).catch(()=>{ /* algunos navegadores no soportan esta consulta, no rompe nada */ });
+}
+
+// vibración breve cada 30s mientras las notificaciones estén apagadas,
+// para llamar mínimamente la atención sin ser invasivo.
+setInterval(()=>{
+  if(!('Notification' in window) || Notification.permission!=='granted'){
+    notifBell.classList.add('shake');
+    setTimeout(()=>notifBell.classList.remove('shake'), 500);
+  }
+}, 30000);
+
+function checkWindowNotifications(){
+  const today = todayStr();
+  const now = nowHHMM();
+  items.forEach(item=>{
+    if(!item.window) return;
+    if(!item.notified[today]) item.notified[today] = {start:false, end:false};
+    const flags = item.notified[today];
+    const c = getCheckin(item, today);
+
+    if(!flags.start && now >= item.window.start){
+      flags.start = true;
+      save();
+      playAlertSound();
+      showToast('🔔 Toca estudiar: '+item.name+' — meta '+item.dailyGoalMinutes+' min ('+item.window.start+'–'+item.window.end+')');
+      if('Notification' in window && Notification.permission==='granted'){
+        new Notification('Toca estudiar: '+item.name, {
+          body: `Meta de hoy: ${item.dailyGoalMinutes} min · Franja ${item.window.start}–${item.window.end}`
+        });
+      }
+    }
+    if(!flags.end && now >= item.window.end && !c.completed){
+      flags.end = true;
+      save();
+      playAlertSound();
+      showToast('⏰ Franja terminada sin completar: '+item.name+' — llevás '+c.minutesReal+'/'+item.dailyGoalMinutes+' min');
+      if('Notification' in window && Notification.permission==='granted'){
+        new Notification('Franja terminada sin completar: '+item.name, {
+          body: `Llevás ${c.minutesReal}/${item.dailyGoalMinutes} min. Todavía podés sumarlos hoy.`
+        });
+      }
+    }
+  });
+}
+setInterval(checkWindowNotifications, 30000);
+checkWindowNotifications();
+
+/* ---- init ---- */
+render();
+</script>
+</body>
+</html>
