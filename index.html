@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPEED</title>
     <link rel="icon" type="image/png" href="IMAGES/Speed_Logo3.png">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1A3258">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SPEED">
     <!-- Importación de la fuente Inter para una apariencia limpia y moderna -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome para iconos -->
@@ -588,30 +582,6 @@
     </style>
 </head>
 <body>
-
-<!-- ============================================================
-     GATE DE INSTALACIÓN OBLIGATORIA
-     Tapa toda la app hasta que el usuario instale la PWA (Chrome/Edge)
-     o, si el navegador no soporta instalación, se le indica cambiar
-     de navegador. Se controla desde el script al final del <body>.
-     ============================================================ -->
-<div id="install-gate" style="
-    position: fixed; inset: 0; z-index: 999999;
-    background: #151a21; color: #fff;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 32px; font-family: 'Inter', sans-serif;
-">
-    <img src="IMAGES/Speed_Logo3.png" alt="SPEED" style="width: 90px; height: 90px; margin-bottom: 24px; opacity: 0.95;">
-    <h1 id="install-gate-title" style="font-size: 1.4em; margin: 0 0 12px 0; font-weight: 700;">Instalá SPEED para continuar</h1>
-    <p id="install-gate-msg" style="max-width: 420px; color: #9aa0a6; line-height: 1.5; margin: 0 0 24px 0;">
-        Esta herramienta funciona como aplicación instalada. Instalala para acceder.
-    </p>
-    <button id="install-gate-btn" style="
-        display: none; background: #69FF8A; color: #151a21; border: none;
-        padding: 12px 28px; border-radius: 8px; cursor: pointer;
-        font-weight: 700; font-size: 15px; font-family: inherit;
-    ">Instalar app</button>
-</div>
 
 <div class="dashboard-container">
         <!-- Menú de navegación lateral -->
@@ -1554,148 +1524,6 @@
     <script>
     /* Tema fijo: Noche (sin selector, controlado por app madre) */
     document.documentElement.setAttribute('data-theme', 'dark');
-    </script>
-
-    <script>
-    /* ============================================================
-       GATE DE INSTALACIÓN OBLIGATORIA
-       ============================================================ */
-    (function () {
-        const gate = document.getElementById('install-gate');
-        const title = document.getElementById('install-gate-title');
-        const msg = document.getElementById('install-gate-msg');
-        const btn = document.getElementById('install-gate-btn');
-
-        // ¿Ya está corriendo como app instalada?
-        function isStandalone() {
-            return window.matchMedia('(display-mode: standalone)').matches
-                || window.navigator.standalone === true; // iOS Safari instalado
-        }
-
-        // Si ya vino instalada, ni se muestra el gate
-        if (isStandalone()) {
-            gate.remove();
-            return;
-        }
-
-        let deferredPrompt = null;
-
-        // Chrome/Edge disparan esto cuando la PWA es instalable
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            title.textContent = 'Instalá SPEED para continuar';
-            msg.textContent = 'Esta herramienta funciona como aplicación instalada. Instalala para acceder.';
-            btn.style.display = 'inline-block';
-        });
-
-        btn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            if (outcome === 'accepted') {
-                // El evento 'appinstalled' de abajo se encarga de sacar el gate
-                btn.style.display = 'none';
-                msg.textContent = 'Instalando…';
-            }
-        });
-
-        // Se dispara cuando la instalación se completó
-        window.addEventListener('appinstalled', () => {
-            gate.remove();
-        });
-
-        // Si a los 2.5s no llegó beforeinstallprompt, asumimos navegador
-        // sin soporte de instalación (Firefox, Safari) y guiamos a cambiar
-        setTimeout(() => {
-            if (!deferredPrompt && !isStandalone()) {
-                title.textContent = 'Abrí SPEED en Chrome o Edge';
-                msg.textContent = 'Este navegador no permite instalar la aplicación. Copiá este enlace y abrilo en Google Chrome o Microsoft Edge para poder acceder.';
-                btn.style.display = 'inline-block';
-                btn.textContent = 'Copiar enlace';
-                btn.onclick = () => {
-                    navigator.clipboard.writeText(window.location.href).then(() => {
-                        btn.textContent = 'Enlace copiado ✓';
-                    });
-                };
-            }
-        }, 2500);
-    })();
-    </script>
-
-    <script>
-    /* Registro del Service Worker (PWA instalable + soporte offline).
-       Solo corre bajo http(s) — bajo file:// no hay Service Worker API,
-       así que se ignora silenciosamente y la app sigue funcionando normal.
-
-       Además detecta cuando hay una versión nueva del SW instalada y
-       esperando activarse, y muestra un aviso para que el usuario
-       confirme la recarga (en vez de forzarla sola y perder estado). */
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then((reg) => {
-                    console.log('[SW] Registrado:', reg.scope);
-
-                    // Por si ya había un SW nuevo esperando desde antes de cargar esta página
-                    if (reg.waiting) {
-                        showUpdateBanner(reg);
-                    }
-
-                    // Detecta un SW nuevo que se instala mientras la página está abierta
-                    reg.addEventListener('updatefound', () => {
-                        const newWorker = reg.installing;
-                        if (!newWorker) return;
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                showUpdateBanner(reg);
-                            }
-                        });
-                    });
-                })
-                .catch((err) => console.warn('[SW] Error al registrar:', err));
-
-            // Cuando el nuevo SW toma control, recargamos una sola vez
-            let refreshing = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (refreshing) return;
-                refreshing = true;
-                window.location.reload();
-            });
-        });
-    }
-
-    function showUpdateBanner(reg) {
-        if (document.getElementById('sw-update-banner')) return; // evita duplicados
-
-        const banner = document.createElement('div');
-        banner.id = 'sw-update-banner';
-        banner.style.cssText = `
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--primary-color, #1A3258); color: #fff;
-            padding: 12px 18px; border-radius: 10px; z-index: 999999;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-            font-family: 'Inter', sans-serif; font-size: 14px;
-            display: flex; align-items: center; gap: 14px;
-        `;
-        banner.innerHTML = `
-            <span>Nueva versión disponible</span>
-            <button id="sw-update-btn" style="
-                background: #fff; color: #1A3258; border: none;
-                padding: 6px 14px; border-radius: 6px; cursor: pointer;
-                font-weight: 600; font-family: inherit; font-size: 13px;
-            ">Recargar</button>
-        `;
-        document.body.appendChild(banner);
-
-        document.getElementById('sw-update-btn').addEventListener('click', () => {
-            if (reg.waiting) {
-                reg.waiting.postMessage('SKIP_WAITING');
-            }
-            banner.remove();
-        });
-    }
     </script>
 
 </body>
