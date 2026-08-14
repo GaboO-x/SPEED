@@ -840,11 +840,9 @@ function updateCharCounter(textarea, counterEl) {
  * ## Recommendations
  * <recommendations part>
  *
- * Incident-IT
- *
  * URL : <url>
  */
-function buildOutput(includeJustification, includeMitigation) {
+function buildOutput(includeJustification, includeMitigation, includeUrl = true) {
   const url            = (document.getElementById('url-input')?.value || '').trim();
   const alertDetails   = (document.getElementById('alert-details-input')?.value || '').trim();
   const analysis       = (document.getElementById('analysis-input')?.value || '').trim();
@@ -951,12 +949,12 @@ function buildOutput(includeJustification, includeMitigation) {
   }
 
   // ── Footer ──
-  lines.push('Incident-IT');
-  lines.push('');
-  if (isSectionUsed('section-used-url') && url) {
-    lines.push('URL : ' + url);
-  } else {
-    lines.push('URL :');
+  if (includeUrl) {
+    if (isSectionUsed('section-used-url') && url) {
+      lines.push('URL : ' + url);
+    } else {
+      lines.push('URL :');
+    }
   }
 
   // Remove trailing blank lines before the footer pair
@@ -1010,7 +1008,7 @@ document.getElementById('close-copy-modal-btn').addEventListener('click', () => 
 // ── COPY PREVIOUS ────────────────────────────────────────────────────────────
 // Excludes Justification and Response Actions & Recommendations from the output.
 function copyPreviousAssembled() {
-  const output = buildOutput(false, false);
+  const output = buildOutput(false, false, false);
   if (!output || output.trim() === '') {
     showMessage('Empty', 'No content to copy.');
     return;
@@ -1250,6 +1248,24 @@ if (mainPcrNotesBtn && pcrNotesBtn) {
 <!-- ── THEME ──────────────────────────────────────────────────────── -->
 <script>
 document.documentElement.setAttribute('data-theme', 'dark');
+</script>
+
+<!-- ── DOUBLE CHECK HEADER BANNER ────────────────────────────────────────── -->
+<script>
+(function(){
+  const HEADER = "*********************************************************\n----------------------  INVESTIGATION  ---------------------\n*********************************************************\n\n";
+  const modal = document.getElementById('edit-copy-modal');
+  const ta = document.getElementById('edit-copy-textarea');
+  if(!modal || !ta) return;
+  const obs = new MutationObserver(()=>{
+    if (modal.style.display === 'flex' || modal.style.display === 'block') {
+      if (ta.value && !ta.value.startsWith("*********************************************************")) {
+        ta.value = HEADER + ta.value;
+      }
+    }
+  });
+  obs.observe(modal, { attributes:true, attributeFilter:['style'] });
+})();
 </script>
 
 </body>
